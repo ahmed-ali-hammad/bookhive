@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: book_api
+    ports:
+      - '8085:8000'
+    volumes:
+      - ./:/code/
+    command: 'sh -c "echo \"Container started\" && while sleep 1; do :; done"'
