@@ -1,30 +1,11 @@
-from fastapi import FastAPI, status
+from fastapi import APIRouter, status
 from fastapi import HTTPException
-from pydantic import BaseModel
 from typing import List
 import json
 
-app = FastAPI()
+from src.books.schemas import Book, BookUpdate
 
-
-class Book(BaseModel):
-    id: int
-    title: str
-    author: str
-    publisher: str
-    published_date: str
-    page_count: int
-    language: str
-
-
-class BookUpdate(BaseModel):
-    id: int
-    title: str
-    author: str
-    publisher: str
-    published_date: str
-    page_count: int
-    language: str
+book_router = APIRouter()
 
 
 def rewrite_data_file(f, book_list, indent=4):
@@ -33,20 +14,20 @@ def rewrite_data_file(f, book_list, indent=4):
     f.truncate()
 
 
-@app.get("/health", status_code=200)
+@book_router.get("/health", status_code=200)
 async def health():
     return {"message": "App is healthy"}
 
 
-@app.get("/books", response_model=List[Book])
+@book_router.get("/books", response_model=List[Book])
 async def get_all_books() -> list[Book]:
     """Returns a list of all available books"""
-    with open("books.json", "r") as f:
+    with open("./books.json", "r") as f:
         books = json.load(f)
     return books
 
 
-@app.post("/books", status_code=status.HTTP_201_CREATED)
+@book_router.post("/books", status_code=status.HTTP_201_CREATED)
 async def create_book(book_data: Book) -> dict:
     """Create a new book"""
     with open("books.json", "r+") as f:
@@ -57,7 +38,7 @@ async def create_book(book_data: Book) -> dict:
         return {"Message": "Book is added"}
 
 
-@app.get("/book/{book_id}")
+@book_router.get("/book/{book_id}")
 async def get_book(book_id: int) -> Book:
     """Retrieve a book from the db"""
     with open("books.json", "r") as f:
@@ -68,7 +49,7 @@ async def get_book(book_id: int) -> Book:
     raise HTTPException(status_code=404, detail="Book not found")
 
 
-@app.put("/book/{book_id}")
+@book_router.put("/book/{book_id}")
 async def update_book(book_id: int, book_data: BookUpdate) -> Book:
     with open("books.json", "r+") as f:
         books = json.load(f)
@@ -82,7 +63,7 @@ async def update_book(book_id: int, book_data: BookUpdate) -> Book:
     raise HTTPException(status_code=404, detail="Book not found")
 
 
-@app.delete("/book/{book_id}")
+@book_router.delete("/book/{book_id}")
 async def delete_book(book_id: int):
     """delete a book"""
 
@@ -90,9 +71,9 @@ async def delete_book(book_id: int):
         books = json.load(f)
 
         for i in range(len(books)):
-            if book_id == books[i]['id']:
+            if book_id == books[i]["id"]:
                 books.pop(i)
                 rewrite_data_file(f, books)
                 return {"Message": f"book #{book_id} is deleted"}
 
-    raise HTTPException(status_code=404, detail="Book not found") 
+    raise HTTPException(status_code=404, detail="Book not found")
