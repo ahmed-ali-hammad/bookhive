@@ -40,7 +40,11 @@ pipenv shell  # spawns a shell within the virtualenv
 
 
 ### ▶️ Running the webapp
-TODO: Fill me in
+```bash
+fastapi dev --host 0.0.0.0
+```
+
+You can visit the health endpoints on [http://0.0.0.0:8000/health]
 
 ### 🧪 Running the tests <a name = "tests"></a>
 [pytest](https://docs.pytest.org/) is used for testing.
