@@ -41,7 +41,7 @@ pipenv shell  # spawns a shell within the virtualenv
 
 ### ▶️ Running the webapp
 ```bash
-fastapi dev --host 0.0.0.0
+fastapi dev ./src/main.py --host 0.0.0.0
 ```
 
 You can visit the health endpoints on [http://0.0.0.0:8000/health]

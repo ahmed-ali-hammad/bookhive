@@ -187,5 +187,23 @@
         "published_date": "Today",
         "page_count": 0,
         "language": "DE"
+    },
+    {
+        "id": 5000,
+        "title": "TEST REPO STRUCTURE",
+        "author": "TERRIBLE AUTHOR",
+        "publisher": "TINY PUBLISHER",
+        "published_date": "NOW",
+        "page_count": 0,
+        "language": "DE"
+    },
+    {
+        "id": 6000,
+        "title": "TEST REPO STRUCTURE",
+        "author": "TERRIBLE AUTHOR",
+        "publisher": "TINY PUBLISHER",
+        "published_date": "NOW",
+        "page_count": 0,
+        "language": "DE"
     }
 ]
