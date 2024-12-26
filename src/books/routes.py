@@ -24,6 +24,7 @@ async def get_all_books() -> list[Book]:
     """Returns a list of all available books"""
     with open("src/books/books.json", "r") as f:
         books = json.load(f)
+        print(f"database url is {settings.DATABASE_URL}")
     return books
 
 

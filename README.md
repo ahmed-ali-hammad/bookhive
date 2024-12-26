@@ -41,7 +41,8 @@ pipenv shell  # spawns a shell within the virtualenv
 
 ### ▶️ Running the webapp
 ```bash
-fastapi dev ./src/main.py --host 0.0.0.0
+source ./config/.env.example    # Add the environment variables to the running terminal
+fastapi dev ./src/main.py --host 0.0.0.0    # Run the server in dev mode
 ```
 
 You can visit the health endpoints on [http://0.0.0.0:8000/health]
@@ -72,3 +73,5 @@ $ pipenv update  # update package versions in Pipfile.lock, this should be run f
 
 ## ⛏️ Built Using <a name = "built_using"></a>
 - [FastAPI](https://fastapi.tiangolo.com/) - Web Framework.
+- [PostgreSQL](https://www.postgresql.org/) - Database.
+- [SQLModel](https://sqlmodel.tiangolo.com/) - ORM.

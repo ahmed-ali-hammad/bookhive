@@ -6,6 +6,9 @@ name = "pypi"
 [packages]
 fastapi = {extras = ["standard"], version = "*"}
 pydantic = "*"
+sqlmodel = "*"
+asyncpg = "*"
+pydantic-settings = "*"
 
 [dev-packages]
 ruff = "*"

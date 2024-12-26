@@ -10,3 +10,11 @@ services:
     volumes:
       - ./:/code/
     command: 'sh -c "echo \"Container started\" && while sleep 1; do :; done"'
+
+  database:
+    image: postgres:12
+    container_name: book_api_db
+    environment:
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - ./db_mount:/var/lib/postgresql/data
