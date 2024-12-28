@@ -16,5 +16,5 @@ services:
     container_name: book_api_db
     environment:
       - POSTGRES_PASSWORD=password
-    volumes:
-      - ./db_mount:/var/lib/postgresql/data
+    # volumes:
+    #   - ./db_mount:/var/lib/postgresql/data
