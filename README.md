@@ -1,6 +1,6 @@
 
 
-<h3 align="center">Book API</h3>
+<h3 align="center">BookHive</h3>
 
 <div align="center">
   <img src="https://img.shields.io/badge/status-active-success.svg" />
@@ -9,7 +9,7 @@
 
 ---
 
-<p align="center">TODO: Short Description.
+<p align="center">BookHive API
     <br> 
 </p>
 
@@ -19,7 +19,7 @@
 - [Built Using](#built-using)
 
 ## 🧐 About <a name = "about"></a>
-TODO: Fill me in
+BookHive is an API that enables users to store, query, update, and delete book records.
 
 ## 🏁 Getting Started <a name = "getting_started"></a>
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
@@ -33,19 +33,19 @@ These instructions will get you a copy of the project up and running on your loc
 
 ```bash
 docker compose up
-docker exec -it book_api/bin/bash 
-
+docker exec -it bookhive_dev /bin/bash   # spawns a shell within the docker container
 pipenv shell  # spawns a shell within the virtualenv 
 ```
 
 
 ### ▶️ Running the webapp
 ```bash
-source ./config/.env.example    # Add the environment variables to the running terminal
-fastapi dev ./src/main.py --host 0.0.0.0    # Run the server in dev mode
+source ./config/.env.example    # add the environment variables to the running terminal
+fastapi dev ./src/main.py --host 0.0.0.0    # run the server in dev mode
 ```
 
-You can visit the health endpoints on [http://0.0.0.0:8000/health]
+- API Docs [http://0.0.0.0:8000/docs]
+- Healthcheck endpoints [http://0.0.0.0:8000/health]
 
 ### 🧪 Running the tests <a name = "tests"></a>
 [pytest](https://docs.pytest.org/) is used for testing.

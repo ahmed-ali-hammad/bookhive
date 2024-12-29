@@ -13,12 +13,6 @@ book_router = APIRouter()
 book_service = BookService()
 
 
-def rewrite_data_file(f, book_list, indent=4):
-    f.seek(0)
-    f.write(json.dumps(book_list, indent=indent))
-    f.truncate()
-
-
 @book_router.get("/health", status_code=200)
 async def health():
     return {"message": "App is healthy"}
@@ -44,12 +38,12 @@ async def get_book(book_id: UUID, session: AsyncSession = Depends(get_session)) 
 @book_router.post("/books/create-book", status_code=status.HTTP_201_CREATED)
 async def create_book(
     book_data: BookCreate, session: AsyncSession = Depends(get_session)
-) -> dict:
+) -> Book:
     """Create a new book"""
     book = await book_service.create_book(book_data, session)
 
     if book is not None:
-        return book.model_dump()
+        return book
     else:
         raise HTTPException(status_code=400, detail="Book not added")
 
@@ -58,10 +52,11 @@ async def create_book(
 async def update_book(
     book_id: UUID, book_data: BookUpdate, session: AsyncSession = Depends(get_session)
 ) -> Book:
+    """Update a book"""
     book = await book_service.update_book(book_id, book_data, session)
 
     if book is not None:
-        return book.model_dump()
+        return book
     else:
         raise HTTPException(status_code=404, detail="Book not found")
 
