@@ -10,6 +10,7 @@ sqlmodel = "*"
 asyncpg = "*"
 pydantic-settings = "*"
 greenlet = "*"
+alembic = "*"
 
 [dev-packages]
 ruff = "*"

@@ -1,12 +1,11 @@
-from fastapi import APIRouter, status, Depends, HTTPException
 from typing import List
-import json
-from sqlmodel.ext.asyncio.session import AsyncSession
 from uuid import UUID
 
-from src.books.schemas import Book, BookUpdate, BookCreate
-from src.books.service import BookService
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlmodel.ext.asyncio.session import AsyncSession
 
+from src.books.schemas import Book, BookCreate, BookUpdate
+from src.books.service import BookService
 from src.db.main import get_session
 
 book_router = APIRouter()

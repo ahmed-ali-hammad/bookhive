@@ -1,9 +1,8 @@
-from sqlmodel import SQLModel, Field, Column
+from datetime import date, datetime
+from uuid import UUID, uuid4
 
-from uuid import uuid4, UUID
 import sqlalchemy.dialects.postgresql as pg
-
-from datetime import datetime, date
+from sqlmodel import Column, Field, SQLModel
 
 
 class Book(SQLModel, table=True):
