@@ -3,7 +3,6 @@ from uuid import UUID
 from sqlmodel import desc, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.books.models import Book
 from src.books.schemas import Book, BookCreate, BookUpdate
 
 

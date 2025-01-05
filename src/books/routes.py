@@ -12,19 +12,14 @@ book_router = APIRouter()
 book_service = BookService()
 
 
-@book_router.get("/health", status_code=200)
-async def health():
-    return {"message": "App is healthy"}
-
-
-@book_router.get("/books", response_model=List[Book])
+@book_router.get("/", response_model=List[Book])
 async def get_all_books(session: AsyncSession = Depends(get_session)) -> list[Book]:
     """Returns a list of all available books"""
     books = await book_service.get_all_books(session)
     return books
 
 
-@book_router.get("/books/get-book/{book_id}")
+@book_router.get("/get-book/{book_id}")
 async def get_book(book_id: UUID, session: AsyncSession = Depends(get_session)) -> Book:
     """Retrieve a book from the db"""
     book = await book_service.get_book(book_id, session)
@@ -34,7 +29,7 @@ async def get_book(book_id: UUID, session: AsyncSession = Depends(get_session)) 
         raise HTTPException(status_code=404, detail="Book not found")
 
 
-@book_router.post("/books/create-book", status_code=status.HTTP_201_CREATED)
+@book_router.post("/create-book", status_code=status.HTTP_201_CREATED)
 async def create_book(
     book_data: BookCreate, session: AsyncSession = Depends(get_session)
 ) -> Book:
@@ -47,7 +42,7 @@ async def create_book(
         raise HTTPException(status_code=400, detail="Book not added")
 
 
-@book_router.put("/books/update-book/{book_id}")
+@book_router.put("/update-book/{book_id}")
 async def update_book(
     book_id: UUID, book_data: BookUpdate, session: AsyncSession = Depends(get_session)
 ) -> Book:
@@ -60,7 +55,7 @@ async def update_book(
         raise HTTPException(status_code=404, detail="Book not found")
 
 
-@book_router.delete("/books/delete-book/{book_id}")
+@book_router.delete("/delete-book/{book_id}")
 async def delete_book(book_id: UUID, session: AsyncSession = Depends(get_session)):
     """delete a book"""
 

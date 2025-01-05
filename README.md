@@ -84,4 +84,4 @@ $ pipenv update  # update package versions in Pipfile.lock, this should be run f
 - [FastAPI](https://fastapi.tiangolo.com/) - Web Framework.
 - [PostgreSQL](https://www.postgresql.org/) - Database.
 - [SQLModel](https://sqlmodel.tiangolo.com/) - ORM.
-- [Alembic](https://alembic.sqlalchemy.org/en/latest/) - Database Migration
+- [Alembic](https://alembic.sqlalchemy.org/en/latest/) - Database Migration.

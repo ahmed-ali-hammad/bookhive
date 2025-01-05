@@ -11,6 +11,7 @@ asyncpg = "*"
 pydantic-settings = "*"
 greenlet = "*"
 alembic = "*"
+passlib = "*"
 
 [dev-packages]
 ruff = "*"
