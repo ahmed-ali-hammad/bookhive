@@ -17,3 +17,8 @@ class UserCreateModel(BaseModel):
     username: str = Field(max_length=10)
     email: EmailStr
     password: str
+
+
+class UserAuthModel(BaseModel):
+    email: EmailStr
+    password: str

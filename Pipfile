@@ -12,6 +12,7 @@ pydantic-settings = "*"
 greenlet = "*"
 alembic = "*"
 passlib = "*"
+pyjwt = "*"
 
 [dev-packages]
 ruff = "*"

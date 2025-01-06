@@ -7,6 +7,8 @@ from src.users.domains import UserDomain
 
 from pydantic import EmailStr
 
+from src.users.exceptions import UserNotFoundException, IncorrectPasswordException
+
 
 class UserService:
     async def get_user(self, email: EmailStr, session: AsyncSession) -> User:
@@ -32,3 +34,22 @@ class UserService:
         await session.commit()
 
         return user
+
+    async def get_token(self, email, password, session):
+        user = await self.get_user(email, session)
+        if not user:
+            raise UserNotFoundException
+
+        user_domain = UserDomain(user.username, user.email, password)
+
+        is_user_verified = user_domain.verify_password(user.password_hash)
+
+        if not is_user_verified:
+            raise IncorrectPasswordException
+
+        access_token = user_domain.create_token()
+        refresh_token = user_domain.create_token(expiry=24 * 60 * 60, refresh=True)
+
+        token = {"access_token": access_token, "refresh_token": refresh_token}
+
+        return token

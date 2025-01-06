@@ -7,11 +7,11 @@ from sqlmodel import Column, Field, SQLModel
 class User(SQLModel, table=True):
     __tablename__ = "user"
 
-    id: int = Field(default=None, primary_key=True, nullable=False) 
+    id: int = Field(default=None, primary_key=True, nullable=False)
     username: str
     email: str
-    first_name: str = Field(nullable=True) 
-    last_name: str = Field(nullable=True) 
+    first_name: str = Field(nullable=True)
+    last_name: str = Field(nullable=True)
     password_hash: str = Field(exclude=True)
     is_verified: bool = False
     created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
