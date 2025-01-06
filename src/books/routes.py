@@ -4,23 +4,28 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.books.schemas import Book, BookCreate, BookUpdate
+from src.books.schemas import BookModel, BookCreateModel, BookUpdateModel
 from src.books.service import BookService
 from src.db.main import get_session
+from src.users.dependencies import AccessTokenBearer
 
 book_router = APIRouter()
 book_service = BookService()
+access_token_bearer = AccessTokenBearer()
 
 
-@book_router.get("/", response_model=List[Book])
-async def get_all_books(session: AsyncSession = Depends(get_session)) -> list[Book]:
+@book_router.get("/", response_model=List[BookModel])
+async def get_all_books(
+    session: AsyncSession = Depends(get_session),
+    user_details=Depends(access_token_bearer),
+) -> list[BookModel]:
     """Returns a list of all available books"""
     books = await book_service.get_all_books(session)
     return books
 
 
 @book_router.get("/get-book/{book_id}")
-async def get_book(book_id: UUID, session: AsyncSession = Depends(get_session)) -> Book:
+async def get_book(book_id: UUID, session: AsyncSession = Depends(get_session)) -> BookModel:
     """Retrieve a book from the db"""
     book = await book_service.get_book(book_id, session)
     if book is not None:
@@ -31,8 +36,8 @@ async def get_book(book_id: UUID, session: AsyncSession = Depends(get_session)) 
 
 @book_router.post("/create-book", status_code=status.HTTP_201_CREATED)
 async def create_book(
-    book_data: BookCreate, session: AsyncSession = Depends(get_session)
-) -> Book:
+    book_data: BookCreateModel, session: AsyncSession = Depends(get_session)
+) -> BookModel:
     """Create a new book"""
     book = await book_service.create_book(book_data, session)
 
@@ -44,8 +49,8 @@ async def create_book(
 
 @book_router.put("/update-book/{book_id}")
 async def update_book(
-    book_id: UUID, book_data: BookUpdate, session: AsyncSession = Depends(get_session)
-) -> Book:
+    book_id: UUID, book_data: BookUpdateModel, session: AsyncSession = Depends(get_session)
+) -> BookModel:
     """Update a book"""
     book = await book_service.update_book(book_id, book_data, session)
 

@@ -3,8 +3,9 @@ from uuid import UUID
 from sqlmodel import desc, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.books.schemas import Book, BookCreate, BookUpdate
+from src.books.schemas import BookModel, BookCreateModel, BookUpdateModel
 
+from src.books.models import Book
 
 class BookService:
     async def get_all_books(self, session: AsyncSession):
@@ -14,14 +15,14 @@ class BookService:
 
         return results.all()
 
-    async def get_book(self, book_id: int, session: AsyncSession) -> Book:
+    async def get_book(self, book_id: int, session: AsyncSession) -> BookModel:
         statement = select(Book).where(Book.id == book_id)
 
         results = await session.exec(statement)
 
         return results.first()
 
-    async def create_book(self, book_data: BookCreate, session: AsyncSession) -> Book:
+    async def create_book(self, book_data: BookCreateModel, session: AsyncSession) -> BookModel:
         book = Book(**book_data.model_dump())
 
         session.add(book)
@@ -30,7 +31,7 @@ class BookService:
         return book
 
     async def update_book(
-        self, book_id: UUID, book_data: BookUpdate, session: AsyncSession
+        self, book_id: UUID, book_data: BookUpdateModel, session: AsyncSession
     ) -> Book:
         book_to_update = await self.get_book(book_id, session)
 

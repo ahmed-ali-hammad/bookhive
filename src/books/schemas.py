@@ -4,7 +4,7 @@ from datetime import date, datetime
 from pydantic import BaseModel
 
 
-class Book(BaseModel):
+class BookModel(BaseModel):
     id: uuid.UUID
     title: str
     author: str
@@ -16,7 +16,7 @@ class Book(BaseModel):
     updated_at: datetime
 
 
-class BookCreate(BaseModel):
+class BookCreateModel(BaseModel):
     title: str
     author: str
     publisher: str
@@ -25,7 +25,7 @@ class BookCreate(BaseModel):
     language: str
 
 
-class BookUpdate(BaseModel):
+class BookUpdateModel(BaseModel):
     title: str
     author: str
     publisher: str
