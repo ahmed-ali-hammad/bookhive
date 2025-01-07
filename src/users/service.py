@@ -25,7 +25,7 @@ class UserService:
 
         # Hash the password and prepare user data
         user_dict = user_data.model_dump()
-        user_dict["password_hash"] = UserProfile(**user_dict).hash_password()
+        user_dict["password_hash"] = UserProfile.hash_password(user_dict["password"])
 
         # Remove password field and create User object
         user_dict.pop("password")
@@ -34,22 +34,34 @@ class UserService:
         await session.commit()
 
         return user
-
-    async def get_token(self, email, password, session):
-        user = await self.get_user(email, session)
-        if not user:
-            raise UserNotFoundException
-
-        user_domain = UserProfile(user.username, user.email, password)
-
-        is_user_verified = user_domain.verify_password(user.password_hash)
-
-        if not is_user_verified:
-            raise IncorrectPasswordException
-
-        access_token = user_domain.create_token()
-        refresh_token = user_domain.create_token(expiry=24 * 60 * 60, refresh=True)
+    
+    async def create_token(self, email):
+        access_token = UserProfile.create_token(email=email, expiry=10 * 60)
+        refresh_token = UserProfile.create_token(email=email, expiry=24 * 60 * 60, refresh=True)
 
         token = {"access_token": access_token, "refresh_token": refresh_token}
 
         return token
+    
+    async def generate_token(self, email, password, session):
+
+        user = await self.get_user(email, session)
+        if not user:
+            raise UserNotFoundException
+
+        is_password_verified = UserProfile.verify_password(password, user.password_hash)
+
+        if not is_password_verified:
+            raise IncorrectPasswordException
+        
+        token = await self.create_token(
+            email=email
+        )
+        
+        return token
+
+    async def refresh_token(self, email):
+        new_token = UserProfile.create_token(email=email, expiry=10 * 60)
+
+        return new_token
+    

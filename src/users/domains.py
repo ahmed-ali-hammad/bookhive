@@ -10,23 +10,19 @@ class UserProfile:
     myctx = CryptContext(schemes=["sha256_crypt"])
     JWT_ALGORITHM = "HS256"
 
-    def __init__(self, username, email, password, first_name=None, last_name=None):
-        self.username = username
-        self.email = email
-        self.password = password
-        self.first_name = first_name
-        self.last_name = last_name
-
-    def hash_password(self):
-        password_hash = UserProfile.myctx.hash(self.password)
+    @staticmethod
+    def hash_password(password):
+        password_hash = UserProfile.myctx.hash(password)
         return password_hash
 
-    def verify_password(self, password_hash: str):
-        return UserProfile.myctx.verify(self.password, password_hash)
+    @staticmethod
+    def verify_password(password, password_hash: str):
+        return UserProfile.myctx.verify(password, password_hash)
 
-    def create_token(self, expiry: datetime.timedelta = 3600, refresh: bool = False):
+    @staticmethod
+    def create_token(email, expiry: datetime.timedelta = 3600, refresh: bool = False):
         payload = {
-            "user": {"email": self.email},
+            "user": {"email": email},
             "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=expiry),
             "jti": str(uuid.uuid4()),
             "refresh": refresh,
@@ -37,7 +33,6 @@ class UserProfile:
             key=settings.JWT_SECRET,
             algorithm=UserProfile.JWT_ALGORITHM,
         )
-
         return token
 
     @staticmethod

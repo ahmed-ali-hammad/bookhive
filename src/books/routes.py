@@ -35,7 +35,9 @@ async def get_book(
     if book is not None:
         return book
     else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
+        )
 
 
 @book_router.post("/create-book", status_code=status.HTTP_201_CREATED)
@@ -50,7 +52,9 @@ async def create_book(
     if book is not None:
         return book
     else:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Book not added")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Book not added"
+        )
 
 
 @book_router.put("/update-book/{book_id}")
@@ -66,7 +70,9 @@ async def update_book(
     if book is not None:
         return book
     else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
+        )
 
 
 @book_router.delete("/delete-book/{book_id}")
@@ -82,4 +88,6 @@ async def delete_book(
     if result:
         return {"Message": f"book #{book_id} is deleted"}
     else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
+        )

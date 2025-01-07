@@ -5,6 +5,7 @@ from src.users.schemas import UserCreateModel, UserModel, UserAuthModel
 from src.db.main import get_session
 from src.users.service import UserService
 from src.users.exceptions import UserNotFoundException, IncorrectPasswordException
+from src.users.dependencies import RefreshTokenBearer
 
 user_router = APIRouter()
 
@@ -24,11 +25,11 @@ async def create_user(
 
 
 @user_router.post("/auth/token", status_code=status.HTTP_200_OK)
-async def get_token(
+async def generate_token(
     auth_data: UserAuthModel, session: AsyncSession = Depends(get_session)
 ) -> dict:
     try:
-        token = await user_service.get_token(
+        token = await user_service.generate_token(
             email=auth_data.email, password=auth_data.password, session=session
         )
     except UserNotFoundException:
@@ -41,3 +42,14 @@ async def get_token(
         )
 
     return token
+
+
+@user_router.post("/auth/refresh-token", status_code=status.HTTP_200_OK)
+async def refresh_token(
+    token_data: dict = Depends(RefreshTokenBearer()),
+) -> dict:
+    
+    user_email = token_data["user"]["email"]
+    new_token = await user_service.refresh_token(email=user_email)
+    
+    return {"access_token": new_token}
