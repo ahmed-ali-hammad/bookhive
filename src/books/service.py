@@ -7,6 +7,7 @@ from src.books.schemas import BookModel, BookCreateModel, BookUpdateModel
 
 from src.books.models import Book
 
+
 class BookService:
     async def get_all_books(self, session: AsyncSession):
         statement = select(Book).order_by(desc(Book.created_at))
@@ -22,7 +23,9 @@ class BookService:
 
         return results.first()
 
-    async def create_book(self, book_data: BookCreateModel, session: AsyncSession) -> BookModel:
+    async def create_book(
+        self, book_data: BookCreateModel, session: AsyncSession
+    ) -> BookModel:
         book = Book(**book_data.model_dump())
 
         session.add(book)

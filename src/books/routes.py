@@ -14,10 +14,10 @@ book_service = BookService()
 access_token_bearer = AccessTokenBearer()
 
 
-@book_router.get("/", response_model=List[BookModel])
+@book_router.get("/")
 async def get_all_books(
     session: AsyncSession = Depends(get_session),
-    user_details=Depends(access_token_bearer),
+    _: dict = Depends(access_token_bearer),
 ) -> list[BookModel]:
     """Returns a list of all available books"""
     books = await book_service.get_all_books(session)
@@ -25,18 +25,24 @@ async def get_all_books(
 
 
 @book_router.get("/get-book/{book_id}")
-async def get_book(book_id: UUID, session: AsyncSession = Depends(get_session)) -> BookModel:
+async def get_book(
+    book_id: UUID,
+    session: AsyncSession = Depends(get_session),
+    _: dict = Depends(access_token_bearer),
+) -> BookModel:
     """Retrieve a book from the db"""
     book = await book_service.get_book(book_id, session)
     if book is not None:
         return book
     else:
-        raise HTTPException(status_code=404, detail="Book not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found")
 
 
 @book_router.post("/create-book", status_code=status.HTTP_201_CREATED)
 async def create_book(
-    book_data: BookCreateModel, session: AsyncSession = Depends(get_session)
+    book_data: BookCreateModel,
+    session: AsyncSession = Depends(get_session),
+    _: dict = Depends(access_token_bearer),
 ) -> BookModel:
     """Create a new book"""
     book = await book_service.create_book(book_data, session)
@@ -44,12 +50,15 @@ async def create_book(
     if book is not None:
         return book
     else:
-        raise HTTPException(status_code=400, detail="Book not added")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Book not added")
 
 
 @book_router.put("/update-book/{book_id}")
 async def update_book(
-    book_id: UUID, book_data: BookUpdateModel, session: AsyncSession = Depends(get_session)
+    book_id: UUID,
+    book_data: BookUpdateModel,
+    session: AsyncSession = Depends(get_session),
+    _: dict = Depends(access_token_bearer),
 ) -> BookModel:
     """Update a book"""
     book = await book_service.update_book(book_id, book_data, session)
@@ -57,11 +66,15 @@ async def update_book(
     if book is not None:
         return book
     else:
-        raise HTTPException(status_code=404, detail="Book not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found")
 
 
 @book_router.delete("/delete-book/{book_id}")
-async def delete_book(book_id: UUID, session: AsyncSession = Depends(get_session)):
+async def delete_book(
+    book_id: UUID,
+    session: AsyncSession = Depends(get_session),
+    _: dict = Depends(access_token_bearer),
+):
     """delete a book"""
 
     result = await book_service.delete_book(book_id, session)
@@ -69,4 +82,4 @@ async def delete_book(book_id: UUID, session: AsyncSession = Depends(get_session
     if result:
         return {"Message": f"book #{book_id} is deleted"}
     else:
-        raise HTTPException(status_code=404, detail="Book not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found")

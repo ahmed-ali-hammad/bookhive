@@ -3,7 +3,7 @@ from src.users.models import User
 from sqlmodel import select
 
 from src.users.schemas import UserCreateModel
-from src.users.domains import UserDomain
+from src.users.domains import UserProfile
 
 from pydantic import EmailStr
 
@@ -25,7 +25,7 @@ class UserService:
 
         # Hash the password and prepare user data
         user_dict = user_data.model_dump()
-        user_dict["password_hash"] = UserDomain(**user_dict).hash_password()
+        user_dict["password_hash"] = UserProfile(**user_dict).hash_password()
 
         # Remove password field and create User object
         user_dict.pop("password")
@@ -40,7 +40,7 @@ class UserService:
         if not user:
             raise UserNotFoundException
 
-        user_domain = UserDomain(user.username, user.email, password)
+        user_domain = UserProfile(user.username, user.email, password)
 
         is_user_verified = user_domain.verify_password(user.password_hash)
 
