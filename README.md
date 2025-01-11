@@ -33,7 +33,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ```bash
 docker compose up
-docker exec -it bookhive_dev /bin/bash   # spawns a shell within the docker container
+docker exec -it bookhive-dev /bin/bash   # spawns a shell within the docker container
 pipenv shell  # spawns a shell within the virtualenv 
 ```
 

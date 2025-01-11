@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: bookhive_dev
+    container_name: bookhive-dev
     ports:
       - '8000:8000'
     volumes:
@@ -13,7 +13,7 @@ services:
 
   database:
     image: postgres:12
-    container_name: bookhive_db
+    container_name: bookhive-db
     environment:
       - POSTGRES_PASSWORD=password
     volumes:
