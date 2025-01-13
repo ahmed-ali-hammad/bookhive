@@ -19,7 +19,12 @@
 - [Built Using](#built-using)
 
 ## 🧐 About <a name = "about"></a>
-BookHive is an API that enables users to store, query, update, and delete book records.
+**BookHive** is an API designed for managing book records, offering users the ability to store, query, update, and delete book information. The application consists of two main modules:
+
+- Book Module: Handles book-related operations, including listing, creating, updating, and deleting books.
+- User Module: Manages user authentication and account actions such as sign-up, login, and logout.
+
+The application uses **JWT** (JSON Web Tokens) for access control. Additionally, Redis is employed to handle token revocation for managing user logouts.
 
 ## 🏁 Getting Started <a name = "getting_started"></a>
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
@@ -84,4 +89,5 @@ $ pipenv update  # update package versions in Pipfile.lock, this should be run f
 - [FastAPI](https://fastapi.tiangolo.com/) - Web Framework.
 - [PostgreSQL](https://www.postgresql.org/) - Database.
 - [SQLModel](https://sqlmodel.tiangolo.com/) - ORM.
+- [Redis](https://redis.io/) - In memory database.
 - [Alembic](https://alembic.sqlalchemy.org/en/latest/) - Database Migration.

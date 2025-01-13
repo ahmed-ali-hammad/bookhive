@@ -34,17 +34,18 @@ class UserService:
         await session.commit()
 
         return user
-    
+
     async def create_token(self, email):
         access_token = UserProfile.create_token(email=email, expiry=10 * 60)
-        refresh_token = UserProfile.create_token(email=email, expiry=24 * 60 * 60, refresh=True)
+        refresh_token = UserProfile.create_token(
+            email=email, expiry=24 * 60 * 60, refresh=True
+        )
 
         token = {"access_token": access_token, "refresh_token": refresh_token}
 
         return token
-    
-    async def generate_token(self, email, password, session):
 
+    async def generate_token(self, email, password, session):
         user = await self.get_user(email, session)
         if not user:
             raise UserNotFoundException
@@ -53,15 +54,12 @@ class UserService:
 
         if not is_password_verified:
             raise IncorrectPasswordException
-        
-        token = await self.create_token(
-            email=email
-        )
-        
+
+        token = await self.create_token(email=email)
+
         return token
 
     async def refresh_token(self, email):
         new_token = UserProfile.create_token(email=email, expiry=10 * 60)
 
         return new_token
-    

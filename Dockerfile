@@ -1,6 +1,7 @@
 FROM python:3.13
 
-RUN apt update && apt install -y postgresql 
+# for postgres and redis
+RUN apt update && apt install -y postgresql redis-tools
 
 WORKDIR /code
 

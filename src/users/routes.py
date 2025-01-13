@@ -5,7 +5,8 @@ from src.users.schemas import UserCreateModel, UserModel, UserAuthModel
 from src.db.main import get_session
 from src.users.service import UserService
 from src.users.exceptions import UserNotFoundException, IncorrectPasswordException
-from src.users.dependencies import RefreshTokenBearer
+from src.users.dependencies import RefreshTokenBearer, AccessTokenBearer
+from src.redis import add_jti_to_blocklist
 
 user_router = APIRouter()
 
@@ -28,6 +29,7 @@ async def create_user(
 async def generate_token(
     auth_data: UserAuthModel, session: AsyncSession = Depends(get_session)
 ) -> dict:
+    """Login endpoint"""
     try:
         token = await user_service.generate_token(
             email=auth_data.email, password=auth_data.password, session=session
@@ -48,8 +50,17 @@ async def generate_token(
 async def refresh_token(
     token_data: dict = Depends(RefreshTokenBearer()),
 ) -> dict:
-    
     user_email = token_data["user"]["email"]
     new_token = await user_service.refresh_token(email=user_email)
-    
+
     return {"access_token": new_token}
+
+
+@user_router.get("/auth/token/revoke", status_code=status.HTTP_200_OK)
+async def revoke_token(token_data: dict = Depends(AccessTokenBearer())) -> dict:
+    """Logout endpoint"""
+    jti = token_data["jti"]
+
+    await add_jti_to_blocklist(jti)
+
+    return {"Message": "Logged out successfuly"}
