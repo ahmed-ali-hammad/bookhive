@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import datetime
 
 import sqlalchemy.dialects.postgresql as pg
 from sqlmodel import Column, Field, SQLModel

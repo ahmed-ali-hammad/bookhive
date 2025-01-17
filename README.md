@@ -71,11 +71,11 @@ $ pytest tests/integration  # run only the integration tests
 ```
 
 ### Code Style & Linting
-[ruff](https://docs.astral.sh/ruff/) is used for formatting
+[ruff](https://docs.astral.sh/ruff/) is used as a linter and formatter.
 
 ```bash
-$ ruff format                       # format code
-$ ruff check . --select I001 --fix  # sort the imports
+$ ruff check . --fix  # formatting, imports, and unused variables
+$ ruff format         # formatting only
 ```
 
 ### Python Package Management
