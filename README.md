@@ -71,8 +71,12 @@ $ pytest tests/integration  # run only the integration tests
 ```
 
 ### Code Style & Linting
+[ruff](https://docs.astral.sh/ruff/) is used for formatting
 
- - [ruff](https://docs.astral.sh/ruff/)
+```bash
+$ ruff format                       # format code
+$ ruff check . --select I001 --fix  # sort the imports
+```
 
 ### Python Package Management
 [pipenv](https://pipenv.pypa.io/en/latest/) is used to manage Python packages. 

@@ -1,16 +1,26 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
-from src.users.schemas import UserCreateModel, UserModel, UserAuthModel
 
 from src.db.main import get_session
-from src.users.service import UserService
-from src.users.exceptions import UserNotFoundException, IncorrectPasswordException
-from src.users.dependencies import RefreshTokenBearer, AccessTokenBearer
 from src.redis import add_jti_to_blocklist
+from src.users.dependencies import (
+    AccessTokenBearer,
+    RefreshTokenBearer,
+    get_current_user,
+)
+from src.users.exceptions import IncorrectPasswordException, UserNotFoundException
+from src.users.models import User
+from src.users.schemas import UserAuthModel, UserCreateModel, UserModel
+from src.users.service import UserService
 
 user_router = APIRouter()
 
 user_service = UserService()
+
+
+@user_router.get("/me", status_code=status.HTTP_200_OK)
+async def get_current_user(user: User = Depends(get_current_user)) -> UserModel:
+    return user
 
 
 @user_router.post("/signup", status_code=status.HTTP_201_CREATED)

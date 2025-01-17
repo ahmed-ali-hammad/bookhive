@@ -1,9 +1,11 @@
-from passlib.context import CryptContext
-from src.config import settings
-import jwt
 import datetime
-import uuid
 import logging
+import uuid
+
+import jwt
+from passlib.context import CryptContext
+
+from src.config import settings
 
 
 class UserProfile:

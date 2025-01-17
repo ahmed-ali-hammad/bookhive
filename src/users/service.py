@@ -1,13 +1,11 @@
-from sqlmodel.ext.asyncio.session import AsyncSession
-from src.users.models import User
-from sqlmodel import select
-
-from src.users.schemas import UserCreateModel
-from src.users.domains import UserProfile
-
 from pydantic import EmailStr
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.users.exceptions import UserNotFoundException, IncorrectPasswordException
+from src.users.domains import UserProfile
+from src.users.exceptions import IncorrectPasswordException, UserNotFoundException
+from src.users.models import User
+from src.users.schemas import UserCreateModel
 
 
 class UserService:

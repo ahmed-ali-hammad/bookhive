@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.books.schemas import BookModel, BookCreateModel, BookUpdateModel
+from src.books.schemas import BookCreateModel, BookModel, BookUpdateModel
 from src.books.service import BookService
 from src.db.main import get_session
 from src.users.dependencies import AccessTokenBearer
