@@ -33,15 +33,11 @@ class UserService:
 
         return user
 
-    async def create_token(self, email):
-        access_token = UserProfile.create_token(email=email, expiry=10 * 60)
-        refresh_token = UserProfile.create_token(
-            email=email, expiry=24 * 60 * 60, refresh=True
-        )
+    async def create_token(self, user_data: dict) -> dict:
+        access_token = UserProfile.create_token(user_data, 10 * 60)
+        refresh_token = UserProfile.create_token(user_data, 24 * 60 * 60, True)
 
-        token = {"access_token": access_token, "refresh_token": refresh_token}
-
-        return token
+        return {"access_token": access_token, "refresh_token": refresh_token}
 
     async def generate_token(self, email, password, session):
         user = await self.get_user(email, session)
@@ -53,11 +49,13 @@ class UserService:
         if not is_password_verified:
             raise IncorrectPasswordException
 
-        token = await self.create_token(email=email)
+        user_data = {"email": email, "role": user.role}
+
+        token = await self.create_token(user_data)
 
         return token
 
-    async def refresh_token(self, email):
-        new_token = UserProfile.create_token(email=email, expiry=10 * 60)
+    async def refresh_token(self, user_data: dict) -> str:
+        new_token = UserProfile.create_token(user_data=user_data, expiry=10 * 60)
 
         return new_token

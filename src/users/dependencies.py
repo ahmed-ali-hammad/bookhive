@@ -3,11 +3,13 @@ from fastapi.exceptions import HTTPException
 from fastapi.security import HTTPBearer
 from fastapi.security.http import HTTPAuthorizationCredentials
 from sqlmodel.ext.asyncio.session import AsyncSession
+from typing import Union
 
 from src.db.main import get_session
 from src.redis import is_jti_in_blocklist
 from src.users.domains import UserProfile
 from src.users.service import UserService
+from src.users.models import User
 
 user_service = UserService()
 
@@ -77,9 +79,25 @@ class RefreshTokenBearer(TokenBearer):
 async def get_current_user(
     token_details: dict = Depends(AccessTokenBearer()),
     session: AsyncSession = Depends(get_session),
-):
+) -> User:
     user_email = token_details["user"]["email"]
 
     user = await user_service.get_user(user_email, session)
 
     return user
+
+
+class RoleChecker:
+    def __init__(self, allowed_roles: list) -> None:
+        self.allowed_roles = allowed_roles
+
+    def __call__(
+        self, current_user: User = Depends(get_current_user)
+    ) -> Union[bool, Exception]:
+        if current_user.role in self.allowed_roles:
+            return True
+
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Unauthorized access. You lack the necessary role to access this resource.",
+        )

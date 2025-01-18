@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import sqlalchemy.dialects.postgresql as pg
-from sqlmodel import Column, Field, SQLModel
+from sqlmodel import Column, Field, SQLModel, String
 
 
 class User(SQLModel, table=True):
@@ -14,6 +14,7 @@ class User(SQLModel, table=True):
     last_name: str = Field(nullable=True)
     password_hash: str = Field(exclude=True)
     is_verified: bool = False
+    role: str = Field(sa_column=Column(String, nullable=False, server_default="user"))
     created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
     updated_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
 

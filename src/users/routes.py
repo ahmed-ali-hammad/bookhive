@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
+from typing import Union
 
 from src.db.main import get_session
 from src.redis import add_jti_to_blocklist
@@ -7,6 +8,7 @@ from src.users.dependencies import (
     AccessTokenBearer,
     RefreshTokenBearer,
     get_current_user,
+    RoleChecker,
 )
 from src.users.exceptions import IncorrectPasswordException, UserNotFoundException
 from src.users.models import User
@@ -14,12 +16,15 @@ from src.users.schemas import UserAuthModel, UserCreateModel, UserModel
 from src.users.service import UserService
 
 user_router = APIRouter()
-
 user_service = UserService()
+role_checker = RoleChecker(["admin", "user"])
 
 
 @user_router.get("/me", status_code=status.HTTP_200_OK)
-async def get_current_user(user: User = Depends(get_current_user)) -> UserModel:
+async def get_current_user(
+    user: User = Depends(get_current_user),
+    _: Union[bool, Exception] = Depends(role_checker),
+) -> UserModel:
     return user
 
 
@@ -60,8 +65,8 @@ async def generate_token(
 async def refresh_token(
     token_data: dict = Depends(RefreshTokenBearer()),
 ) -> dict:
-    user_email = token_data["user"]["email"]
-    new_token = await user_service.refresh_token(email=user_email)
+    user_data = {"email": token_data["user"]["email"]}
+    new_token = await user_service.refresh_token(user_data=user_data)
 
     return {"access_token": new_token}
 

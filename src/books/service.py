@@ -51,8 +51,6 @@ class BookService:
     async def delete_book(self, book_id: UUID, session: AsyncSession):
         book_to_delete = await self.get_book(book_id, session)
 
-        print("type is ", type(book_to_delete))
-
         if book_to_delete:
             await session.delete(book_to_delete)
             await session.commit()

@@ -18,7 +18,6 @@ app = FastAPI(
 )
 
 app.include_router(book_router, prefix="/api/books")
-
 app.include_router(user_router, prefix="/api/users")
 
 

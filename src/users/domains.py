@@ -22,9 +22,11 @@ class UserProfile:
         return UserProfile.myctx.verify(password, password_hash)
 
     @staticmethod
-    def create_token(email, expiry: datetime.timedelta = 3600, refresh: bool = False):
+    def create_token(
+        user_data: dict, expiry: datetime.timedelta = 3600, refresh: bool = False
+    ) -> str:
         payload = {
-            "user": {"email": email},
+            "user": user_data,
             "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=expiry),
             "jti": str(uuid.uuid4()),
             "refresh": refresh,

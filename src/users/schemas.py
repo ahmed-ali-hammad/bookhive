@@ -10,6 +10,7 @@ class UserModel(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     is_verified: bool
+    role: str
     created_at: datetime
     updated_at: datetime
 

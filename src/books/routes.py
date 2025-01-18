@@ -6,14 +6,17 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from src.books.schemas import BookCreateModel, BookModel, BookUpdateModel
 from src.books.service import BookService
 from src.db.main import get_session
-from src.users.dependencies import AccessTokenBearer
+from src.users.dependencies import AccessTokenBearer, RoleChecker
 
 book_router = APIRouter()
 book_service = BookService()
 access_token_bearer = AccessTokenBearer()
+role_checker = RoleChecker(["admin", "user"])
 
 
-@book_router.get("/")
+@book_router.get(
+    "/", dependencies=[Depends(role_checker)], status_code=status.HTTP_200_OK
+)
 async def get_all_books(
     session: AsyncSession = Depends(get_session),
     _: dict = Depends(access_token_bearer),
@@ -23,7 +26,11 @@ async def get_all_books(
     return books
 
 
-@book_router.get("/get-book/{book_id}")
+@book_router.get(
+    "/get-book/{book_id}",
+    dependencies=[Depends(role_checker)],
+    status_code=status.HTTP_200_OK,
+)
 async def get_book(
     book_id: UUID,
     session: AsyncSession = Depends(get_session),
@@ -39,7 +46,11 @@ async def get_book(
         )
 
 
-@book_router.post("/create-book", status_code=status.HTTP_201_CREATED)
+@book_router.post(
+    "/create-book",
+    dependencies=[Depends(role_checker)],
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_book(
     book_data: BookCreateModel,
     session: AsyncSession = Depends(get_session),
@@ -56,7 +67,7 @@ async def create_book(
         )
 
 
-@book_router.put("/update-book/{book_id}")
+@book_router.put("/update-book/{book_id}", dependencies=[Depends(role_checker)])
 async def update_book(
     book_id: UUID,
     book_data: BookUpdateModel,
@@ -74,7 +85,7 @@ async def update_book(
         )
 
 
-@book_router.delete("/delete-book/{book_id}")
+@book_router.delete("/delete-book/{book_id}", dependencies=[Depends(role_checker)])
 async def delete_book(
     book_id: UUID,
     session: AsyncSession = Depends(get_session),
