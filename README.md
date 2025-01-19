@@ -65,9 +65,7 @@ alembic upgrade head  # apply the new migrations
 [pytest](https://docs.pytest.org/) is used for testing.
 
 ```bash
-$ pytest tests/             # run all tests
-$ pytest tests/unit         # run only the unit tests
-$ pytest tests/integration  # run only the integration tests
+$ pytest tests/  # run tests
 ```
 
 ### Code Style & Linting

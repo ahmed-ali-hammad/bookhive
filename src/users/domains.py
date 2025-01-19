@@ -27,7 +27,8 @@ class UserProfile:
     ) -> str:
         payload = {
             "user": user_data,
-            "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=expiry),
+            "exp": datetime.datetime.now(datetime.timezone.utc)
+            + datetime.timedelta(seconds=expiry),
             "jti": str(uuid.uuid4()),
             "refresh": refresh,
         }

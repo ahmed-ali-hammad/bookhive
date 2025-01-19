@@ -18,10 +18,10 @@ class TokenBearer(HTTPBearer):
     def __init__(self, auto_error=True):
         super().__init__(auto_error=auto_error)
 
-    async def verify_token_type(self, token_data: dict) -> None:
+    async def verify_token_type(self) -> None:
         raise NotImplementedError("Please Implement in Child Classes")
 
-    async def get_token_data(self, token):
+    async def get_token_data(self, token: str) -> dict | None:
         return UserProfile.decode_token(token)
 
     async def validate_token(self, token: str) -> bool:
