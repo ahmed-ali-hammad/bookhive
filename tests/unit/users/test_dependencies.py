@@ -1,4 +1,6 @@
 import pytest
+from fastapi.security import HTTPBearer
+from fastapi.exceptions import HTTPException
 
 from src.users.domains import UserProfile
 from src.users.dependencies import TokenBearer
@@ -65,3 +67,119 @@ class TestTokenBearer:
 
         is_token_valid = await setup["token_bearer"].validate_token(invalid_token)
         assert is_token_valid is False
+
+    @pytest.mark.asyncio
+    async def test_token_bearer_valid_token(self, setup, monkeypatch):
+        token_bearer = setup["token_bearer"]
+
+        async def mock_super_call(self, request):
+            class creds:
+                credentials = setup["token"]
+
+            return creds
+
+        async def mock_is_jti_in_blocklist(jti):
+            return False
+
+        async def mock_verify_token_type(token_data):
+            pass
+
+        monkeypatch.setattr(HTTPBearer, "__call__", mock_super_call)
+        monkeypatch.setattr(
+            "src.users.dependencies.is_jti_in_blocklist", mock_is_jti_in_blocklist
+        )
+        monkeypatch.setattr(token_bearer, "verify_token_type", mock_verify_token_type)
+
+        token_data = await token_bearer.__call__(None)
+
+        assert isinstance(token_data, dict)
+        assert list(token_data.keys()) == ["user", "exp", "jti", "refresh"]
+        assert token_data["user"]["email"] == setup["user_email"]
+        assert token_data["user"]["role"] == "user"
+
+    @pytest.mark.asyncio
+    async def test_token_bearer_invalid_token(self, setup, monkeypatch):
+        token_bearer = setup["token_bearer"]
+
+        async def mock_super_call(self, request):
+            class creds:
+                credentials = setup["invalid_token"]
+
+            return creds
+
+        async def mock_is_jti_in_blocklist(jti):
+            return False
+
+        async def mock_verify_token_type(token_data):
+            pass
+
+        monkeypatch.setattr(HTTPBearer, "__call__", mock_super_call)
+        monkeypatch.setattr(
+            "src.users.dependencies.is_jti_in_blocklist", mock_is_jti_in_blocklist
+        )
+        monkeypatch.setattr(token_bearer, "verify_token_type", mock_verify_token_type)
+
+        with pytest.raises(HTTPException) as exc_info:
+            await token_bearer.__call__(None)
+
+        assert exc_info.value.status_code == 403
+        assert exc_info.value.detail == "Token is invalid or has expired."
+
+    @pytest.mark.asyncio
+    async def test_token_bearer_expired_token(self, setup, monkeypatch):
+        token_bearer = setup["token_bearer"]
+
+        async def mock_super_call(self, request):
+            class creds:
+                credentials = setup["expired_token"]
+
+            return creds
+
+        async def mock_is_jti_in_blocklist(jti):
+            return False
+
+        async def mock_verify_token_type(token_data):
+            pass
+
+        monkeypatch.setattr(HTTPBearer, "__call__", mock_super_call)
+        monkeypatch.setattr(
+            "src.users.dependencies.is_jti_in_blocklist", mock_is_jti_in_blocklist
+        )
+        monkeypatch.setattr(token_bearer, "verify_token_type", mock_verify_token_type)
+
+        with pytest.raises(HTTPException) as exc_info:
+            await token_bearer.__call__(None)
+
+        assert exc_info.value.status_code == 403
+        assert exc_info.value.detail == "Token is invalid or has expired."
+
+    @pytest.mark.asyncio
+    async def test_token_bearer_in_block_list_token(self, setup, monkeypatch):
+        token_bearer = setup["token_bearer"]
+
+        async def mock_super_call(self, request):
+            class creds:
+                credentials = setup["token"]
+
+            return creds
+
+        async def mock_is_jti_in_blocklist(jti):
+            return True
+
+        async def mock_verify_token_type(token_data):
+            pass
+
+        monkeypatch.setattr(HTTPBearer, "__call__", mock_super_call)
+        monkeypatch.setattr(
+            "src.users.dependencies.is_jti_in_blocklist", mock_is_jti_in_blocklist
+        )
+        monkeypatch.setattr(token_bearer, "verify_token_type", mock_verify_token_type)
+
+        with pytest.raises(HTTPException) as exc_info:
+            await token_bearer.__call__(None)
+
+        assert exc_info.value.status_code == 403
+        assert exc_info.value.detail == {
+            "error": "This token has been revoked",
+            "resolution": "Please get a new token",
+        }
