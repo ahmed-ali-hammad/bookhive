@@ -1,9 +1,11 @@
 import pytest
 from fastapi.security import HTTPBearer
 from fastapi.exceptions import HTTPException
+from fastapi.testclient import TestClient
 
 from src.users.domains import UserProfile
-from src.users.dependencies import TokenBearer
+from src.users.dependencies import TokenBearer, AccessTokenBearer, RefreshTokenBearer
+from src.main import app
 
 
 class TestTokenBearer:
@@ -91,6 +93,8 @@ class TestTokenBearer:
         monkeypatch.setattr(token_bearer, "verify_token_type", mock_verify_token_type)
 
         token_data = await token_bearer.__call__(None)
+
+        print(token_data)
 
         assert isinstance(token_data, dict)
         assert list(token_data.keys()) == ["user", "exp", "jti", "refresh"]
@@ -183,3 +187,67 @@ class TestTokenBearer:
             "error": "This token has been revoked",
             "resolution": "Please get a new token",
         }
+
+
+class TestAccessTokenBearer:
+    @pytest.mark.asyncio
+    async def test_verify_token_type_success(self):
+        token_data = {
+            "user": {"email": "example@example.de", "role": "user"},
+            "exp": 1737573128,
+            "jti": "73854d44-7cbe-4bdd-894b-e3f28366d9ca",
+            "refresh": False,
+        }
+
+        # Call the method; the test will pass if no exception is raised.
+        await AccessTokenBearer().verify_token_type(token_data)
+
+    @pytest.mark.asyncio
+    async def test_verify_token_type_failure(self):
+        token_data = {
+            "user": {"email": "example@example.de", "role": "user"},
+            "exp": 1737573128,
+            "jti": "73854d44-7cbe-4bdd-894b-e3f28366d9ca",
+            "refresh": True,
+        }
+
+        with pytest.raises(HTTPException) as exc_info:
+            await AccessTokenBearer().verify_token_type(token_data)
+
+        assert exc_info.value.status_code == 403
+        assert (
+            exc_info.value.detail
+            == "Invalid token: Please provide an access token instead of a refresh token."
+        )
+
+
+class TestRefreshTokenBearer:
+    @pytest.mark.asyncio
+    async def test_verify_token_type_success(self):
+        token_data = {
+            "user": {"email": "example@example.de", "role": "user"},
+            "exp": 1737573128,
+            "jti": "73854d44-7cbe-4bdd-894b-e3f28366d9ca",
+            "refresh": True,
+        }
+
+        # Call the method; the test will pass if no exception is raised.
+        await RefreshTokenBearer().verify_token_type(token_data)
+
+    @pytest.mark.asyncio
+    async def test_verify_token_type_failure(self):
+        token_data = {
+            "user": {"email": "example@example.de", "role": "user"},
+            "exp": 1737573128,
+            "jti": "73854d44-7cbe-4bdd-894b-e3f28366d9ca",
+            "refresh": False,
+        }
+
+        with pytest.raises(HTTPException) as exc_info:
+            await RefreshTokenBearer().verify_token_type(token_data)
+
+        assert exc_info.value.status_code == 403
+        assert (
+            exc_info.value.detail
+            == "Invalid token: Please provide a refresh token instead of an access token."
+        )
