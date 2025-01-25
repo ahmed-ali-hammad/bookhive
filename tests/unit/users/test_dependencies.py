@@ -1,11 +1,15 @@
 import pytest
 from fastapi.security import HTTPBearer
 from fastapi.exceptions import HTTPException
-from fastapi.testclient import TestClient
 
 from src.users.domains import UserProfile
-from src.users.dependencies import TokenBearer, AccessTokenBearer, RefreshTokenBearer
-from src.main import app
+from src.users.service import UserService
+from src.users.dependencies import (
+    TokenBearer,
+    AccessTokenBearer,
+    RefreshTokenBearer,
+    get_current_user,
+)
 
 
 class TestTokenBearer:
@@ -93,8 +97,6 @@ class TestTokenBearer:
         monkeypatch.setattr(token_bearer, "verify_token_type", mock_verify_token_type)
 
         token_data = await token_bearer.__call__(None)
-
-        print(token_data)
 
         assert isinstance(token_data, dict)
         assert list(token_data.keys()) == ["user", "exp", "jti", "refresh"]
@@ -251,3 +253,89 @@ class TestRefreshTokenBearer:
             exc_info.value.detail
             == "Invalid token: Please provide a refresh token instead of an access token."
         )
+
+
+class TestGetCurrentUser:
+    @pytest.mark.asyncio
+    async def test_get_current_user_user_found(self, monkeypatch):
+        token_detail = {
+            "user": {"email": "example@example.de", "role": "user"},
+            "exp": 1737800948,
+            "jti": "b0478698-5b8a-42db-86bc-4102f07d79ef",
+            "refresh": False,
+        }
+        session = None
+
+        async def mock_get_user(self, user_email, session):
+            class MockUser:
+                email = token_detail["user"]["email"]
+                role = token_detail["user"]["role"]
+
+            return MockUser()
+
+        monkeypatch.setattr(UserService, "get_user", mock_get_user)
+
+        user = await get_current_user(token_detail, session)
+
+        assert user.email == "example@example.de"
+        assert user.role == "user"
+
+    @pytest.mark.asyncio
+    async def test_get_current_user_user_not_found(self, monkeypatch):
+        token_detail = {
+            "user": {"email": "valid@example.com", "role": "user"},
+            "exp": 1737800948,
+            "jti": "b0478698-5b8a-42db-86bc-4102f07d79ef",
+            "refresh": False,
+        }
+        session = None
+
+        async def mock_get_user(self, user_email, session):
+            return None
+
+        monkeypatch.setattr(UserService, "get_user", mock_get_user)
+
+        user = await get_current_user(token_detail, session)
+
+        assert user is None
+
+    @pytest.mark.asyncio
+    async def test_get_current_user_missing_email(self):
+        token_detail = {
+            "user": {"role": "user"},
+            "exp": 1737800948,
+            "jti": "b0478698-5b8a-42db-86bc-4102f07d79ef",
+            "refresh": False,
+        }
+        session = None
+
+        with pytest.raises(KeyError):
+            await get_current_user(token_detail, session)
+
+    @pytest.mark.asyncio
+    async def test_get_current_user_invalid_token_format(self):
+        token_detail = "invalid_token_details"
+        session = None
+
+        with pytest.raises(TypeError):
+            await get_current_user(token_detail, session)
+
+    @pytest.mark.asyncio
+    async def test_get_current_user_db_access_failure(self, monkeypatch):
+        token_detail = {
+            "user": {"email": "example@example.com", "role": "user"},
+            "exp": 1737800948,
+            "jti": "b0478698-5b8a-42db-86bc-4102f07d79ef",
+            "refresh": False,
+        }
+        session = None
+
+        async def mock_get_user(self, user_email, session):
+            raise Exception("Database access error")
+
+        monkeypatch.setattr(UserService, "get_user", mock_get_user)
+
+        with pytest.raises(Exception) as exc_info:
+            await get_current_user(token_detail, session)
+
+        assert str(exc_info.value) == "Database access error"
