@@ -8,6 +8,7 @@ from src.users.dependencies import (
     TokenBearer,
     AccessTokenBearer,
     RefreshTokenBearer,
+    RoleChecker,
     get_current_user,
 )
 
@@ -339,3 +340,38 @@ class TestGetCurrentUser:
             await get_current_user(token_detail, session)
 
         assert str(exc_info.value) == "Database access error"
+
+
+class TestRoleChecker:
+    @pytest.fixture
+    def setup(self):
+        return RoleChecker(["admin", "user"])
+
+    @pytest.mark.asyncio
+    async def test_role_checker_success(self, setup):
+        role_checker = setup
+
+        class MockUser:
+            email = "example@example.de"
+            role = "admin"
+
+        result = role_checker.__call__(MockUser())
+
+        assert result is True
+
+    @pytest.mark.asyncio
+    async def test_role_checker_failure(self, setup):
+        role_checker = setup
+
+        class MockUser:
+            email = "example@example.de"
+            role = "Marketing"
+
+        with pytest.raises(HTTPException) as exc_info:
+            role_checker.__call__(MockUser())
+
+        assert exc_info.value.status_code == 403
+        assert (
+            exc_info.value.detail
+            == "Unauthorized access. You lack the necessary role to access this resource."
+        )
