@@ -6,7 +6,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from src.books.schemas import BookCreateModel, BookModel, BookUpdateModel
 from src.books.service import BookService
 from src.db.main import get_session
-from src.users.dependencies import AccessTokenBearer, RoleChecker
+from src.users.dependencies import AccessTokenBearer, RoleChecker, get_current_user
 
 book_router = APIRouter()
 book_service = BookService()
@@ -23,6 +23,41 @@ async def get_all_books(
 ) -> list[BookModel]:
     """Returns a list of all available books"""
     books = await book_service.get_all_books(session)
+    return books
+
+
+@book_router.get(
+    "/user/{user_id}",
+    dependencies=[Depends(role_checker)],
+    status_code=status.HTTP_200_OK,
+)
+async def get_user_books(
+    user_id: int,
+    session: AsyncSession = Depends(get_session),
+    token_details: dict = Depends(access_token_bearer),
+) -> list[BookModel]:
+    """Returns a list of books for a specific user"""
+    user = await get_current_user(token_details, session)
+    user_id = user.id
+
+    books = await book_service.get_user_books(user_id, session)
+    return books
+
+
+@book_router.get(
+    "/current-user",
+    dependencies=[Depends(role_checker)],
+    status_code=status.HTTP_200_OK,
+)
+async def get_current_user_books(
+    session: AsyncSession = Depends(get_session),
+    token_details: dict = Depends(access_token_bearer),
+) -> list[BookModel]:
+    """Returns a list of books for the current logged in user"""
+    user = await get_current_user(token_details, session)
+    user_id = user.id
+
+    books = await book_service.get_user_books(user_id, session)
     return books
 
 
@@ -54,10 +89,14 @@ async def get_book(
 async def create_book(
     book_data: BookCreateModel,
     session: AsyncSession = Depends(get_session),
-    _: dict = Depends(access_token_bearer),
+    token_details: dict = Depends(access_token_bearer),
 ) -> BookModel:
     """Create a new book"""
-    book = await book_service.create_book(book_data, session)
+
+    user = await get_current_user(token_details, session)
+    user_id = user.id
+
+    book = await book_service.create_book(book_data, user_id, session)
 
     if book is not None:
         return book

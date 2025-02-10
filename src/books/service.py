@@ -15,6 +15,15 @@ class BookService:
 
         return results.all()
 
+    async def get_user_books(self, user_id: int, session: AsyncSession):
+        statement = (
+            select(Book).where(Book.user_id == user_id).order_by(desc(Book.created_at))
+        )
+
+        results = await session.exec(statement)
+
+        return results.all()
+
     async def get_book(self, book_id: int, session: AsyncSession) -> BookModel:
         statement = select(Book).where(Book.id == book_id)
 
@@ -23,9 +32,10 @@ class BookService:
         return results.first()
 
     async def create_book(
-        self, book_data: BookCreateModel, session: AsyncSession
+        self, book_data: BookCreateModel, user_id: int, session: AsyncSession
     ) -> BookModel:
         book = Book(**book_data.model_dump())
+        book.user_id = user_id
 
         session.add(book)
         await session.commit()

@@ -12,6 +12,7 @@ class BookModel(BaseModel):
     published_date: date
     page_count: int
     language: str
+    user_id: int
     created_at: datetime
     updated_at: datetime
 
