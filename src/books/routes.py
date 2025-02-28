@@ -34,12 +34,11 @@ async def get_all_books(
 async def get_user_books(
     user_id: int,
     session: AsyncSession = Depends(get_session),
-    token_details: dict = Depends(access_token_bearer),
+    _: dict = Depends(access_token_bearer),
 ) -> list[BookModel]:
     """Returns a list of books for a specific user"""
-    user = await get_current_user(token_details, session)
 
-    books = await book_service.get_user_books(user.id, session)
+    books = await book_service.get_user_books(user_id, session)
     return books
 
 

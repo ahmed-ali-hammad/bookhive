@@ -85,6 +85,8 @@ $ pipenv install  # installs all packages from Pipfile
 $ pipenv install --dev # installs all packages from Pipfile, including dev dependencies
 $ pipenv install <package1> <package2>  # installs provided packages and adds them to Pipfile
 $ pipenv update  # update package versions in Pipfile.lock, this should be run frequently to keep packages up to date
+$ pipenv uninstall package # uninstall a package 
+$ pipenv uninstall package  --categories dev-packages # uninstall a dev package
 ```
 
 ## ⛏️ Built Using <a name = "built_using"></a>
