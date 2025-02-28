@@ -38,9 +38,8 @@ async def get_user_books(
 ) -> list[BookModel]:
     """Returns a list of books for a specific user"""
     user = await get_current_user(token_details, session)
-    user_id = user.id
 
-    books = await book_service.get_user_books(user_id, session)
+    books = await book_service.get_user_books(user.id, session)
     return books
 
 
@@ -55,9 +54,8 @@ async def get_current_user_books(
 ) -> list[BookModel]:
     """Returns a list of books for the current logged in user"""
     user = await get_current_user(token_details, session)
-    user_id = user.id
 
-    books = await book_service.get_user_books(user_id, session)
+    books = await book_service.get_user_books(user.id, session)
     return books
 
 
@@ -94,9 +92,8 @@ async def create_book(
     """Create a new book"""
 
     user = await get_current_user(token_details, session)
-    user_id = user.id
 
-    book = await book_service.create_book(book_data, user_id, session)
+    book = await book_service.create_book(book_data, user.id, session)
 
     if book is not None:
         return book
