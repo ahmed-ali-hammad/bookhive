@@ -12,7 +12,7 @@ from src.users.dependencies import (
 )
 from src.users.exceptions import IncorrectPasswordException, UserNotFoundException
 from src.users.models import User
-from src.users.schemas import UserAuthModel, UserCreateModel, UserModel
+from src.users.schemas import UserAuthModel, UserCreateModel, UserModel, UserBookModel
 from src.users.service import UserService
 
 user_router = APIRouter()
@@ -24,7 +24,7 @@ role_checker = RoleChecker(["admin", "user"])
 async def get_current_user(
     user: User = Depends(get_current_user),
     _: Union[bool, Exception] = Depends(role_checker),
-) -> UserModel:
+) -> UserBookModel:
     return user
 
 

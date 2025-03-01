@@ -14,6 +14,9 @@ class UserModel(BaseModel):
     role: str
     created_at: datetime
     updated_at: datetime
+
+
+class UserBookModel(UserModel):
     books: List[BookModel]
 
 
