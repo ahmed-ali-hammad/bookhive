@@ -1,5 +1,6 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
+from src.books.schemas import BookModel
 
 from pydantic import BaseModel, EmailStr, Field
 
@@ -13,6 +14,7 @@ class UserModel(BaseModel):
     role: str
     created_at: datetime
     updated_at: datetime
+    books: List[BookModel]
 
 
 class UserCreateModel(BaseModel):
