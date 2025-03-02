@@ -1,15 +1,16 @@
+from typing import Union
+
 from fastapi import Depends, Request, status
 from fastapi.exceptions import HTTPException
 from fastapi.security import HTTPBearer
 from fastapi.security.http import HTTPAuthorizationCredentials
 from sqlmodel.ext.asyncio.session import AsyncSession
-from typing import Union
 
 from src.db.main import get_session
 from src.redis import is_jti_in_blocklist
 from src.users.domains import UserProfile
-from src.users.service import UserService
 from src.users.models import User
+from src.users.service import UserService
 
 user_service = UserService()
 

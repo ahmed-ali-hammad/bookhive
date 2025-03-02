@@ -26,6 +26,11 @@
 
 The application uses **JWT** (JSON Web Tokens) for access control. Additionally, Redis is employed to handle token revocation for managing user logouts.
 
+#### Database Schema
+<div style="text-align: center;">
+  <img src="images/schema.png" alt="Diagram" width="600" />
+</div>
+
 ## 🏁 Getting Started <a name = "getting_started"></a>
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
 
@@ -65,15 +70,16 @@ alembic upgrade head  # apply the new migrations
 [pytest](https://docs.pytest.org/) is used for testing.
 
 ```bash
-$ pytest tests/  # run tests
+$ pytest  # run tests
 ```
 
 ### Code Style & Linting
 [ruff](https://docs.astral.sh/ruff/) is used as a linter and formatter.
 
 ```bash
-$ ruff check . --fix  # formatting, imports, and unused variables
-$ ruff format         # formatting only
+$ ruff format                 # formatting only
+$ ruff check . --fix          # formatting, imports, and unused variables
+$ ruff check --select I --fix # sort imports
 ```
 
 ### Python Package Management

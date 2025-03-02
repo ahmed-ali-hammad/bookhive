@@ -1,13 +1,14 @@
 from datetime import datetime
-from typing import Optional, List
-from src.books.schemas import BookModel
+from typing import List, Optional
 
 from pydantic import BaseModel, EmailStr, Field
+
+from src.books.schemas import BookModel
 
 
 class UserModel(BaseModel):
     username: str
-    email: str
+    email: EmailStr
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     is_verified: bool

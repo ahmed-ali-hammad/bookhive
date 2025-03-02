@@ -1,18 +1,19 @@
+from typing import Union
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
-from typing import Union
 
 from src.db.main import get_session
 from src.redis import add_jti_to_blocklist
 from src.users.dependencies import (
     AccessTokenBearer,
     RefreshTokenBearer,
-    get_current_user,
     RoleChecker,
+    get_current_user,
 )
 from src.users.exceptions import IncorrectPasswordException, UserNotFoundException
 from src.users.models import User
-from src.users.schemas import UserAuthModel, UserCreateModel, UserModel, UserBookModel
+from src.users.schemas import UserAuthModel, UserBookModel, UserCreateModel, UserModel
 from src.users.service import UserService
 
 user_router = APIRouter()

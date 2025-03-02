@@ -1,16 +1,16 @@
 import pytest
-from fastapi.security import HTTPBearer
 from fastapi.exceptions import HTTPException
+from fastapi.security import HTTPBearer
 
-from src.users.domains import UserProfile
-from src.users.service import UserService
 from src.users.dependencies import (
-    TokenBearer,
     AccessTokenBearer,
     RefreshTokenBearer,
     RoleChecker,
+    TokenBearer,
     get_current_user,
 )
+from src.users.domains import UserProfile
+from src.users.service import UserService
 
 
 class TestTokenBearer:
