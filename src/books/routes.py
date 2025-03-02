@@ -3,7 +3,12 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.books.schemas import BookCreateModel, BookModel, BookUpdateModel
+from src.books.schemas import (
+    BookCreateModel,
+    BookDetailModel,
+    BookModel,
+    BookUpdateModel,
+)
 from src.books.service import BookService
 from src.db.main import get_session
 from src.users.dependencies import AccessTokenBearer, RoleChecker, get_current_user
@@ -67,7 +72,7 @@ async def get_book(
     book_id: UUID,
     session: AsyncSession = Depends(get_session),
     _: dict = Depends(access_token_bearer),
-) -> BookModel:
+) -> BookDetailModel:
     """Retrieve a book from the db"""
     book = await book_service.get_book(book_id, session)
     if book is not None:

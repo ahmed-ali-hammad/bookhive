@@ -4,6 +4,7 @@ from typing import List, Optional
 from pydantic import BaseModel, EmailStr, Field
 
 from src.books.schemas import BookModel
+from src.reviews.schemas import ReviewModel
 
 
 class UserModel(BaseModel):
@@ -19,6 +20,7 @@ class UserModel(BaseModel):
 
 class UserBookModel(UserModel):
     books: List[BookModel]
+    reviews: List[ReviewModel]
 
 
 class UserCreateModel(BaseModel):

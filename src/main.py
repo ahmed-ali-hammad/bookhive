@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from src.books.routes import book_router
+from src.reviews.routes import review_router
 from src.users.routes import user_router
 
 
@@ -19,6 +20,7 @@ app = FastAPI(
 
 app.include_router(book_router, prefix="/api/books")
 app.include_router(user_router, prefix="/api/users")
+app.include_router(review_router, prefix="/api/reviews")
 
 
 @app.get("/health", status_code=200)

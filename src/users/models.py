@@ -2,8 +2,7 @@ from datetime import datetime
 from typing import List
 
 import sqlalchemy.dialects.postgresql as pg
-from sqlmodel import Column, Field, SQLModel, String, Relationship
-from src.books import models
+from sqlmodel import Column, Field, Relationship, SQLModel, String
 
 
 class User(SQLModel, table=True):
@@ -19,7 +18,10 @@ class User(SQLModel, table=True):
     role: str = Field(sa_column=Column(String, nullable=False, server_default="user"))
     created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
     updated_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
-    books: List["models.Book"] = Relationship(
+    books: List["Book"] = Relationship(
+        back_populates="user", sa_relationship_kwargs={"lazy": "selectin"}
+    )
+    reviews: List["Review"] = Relationship(
         back_populates="user", sa_relationship_kwargs={"lazy": "selectin"}
     )
 

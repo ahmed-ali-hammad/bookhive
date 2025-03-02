@@ -1,11 +1,9 @@
 from datetime import date, datetime
+from typing import List, Optional
 from uuid import UUID, uuid4
-from typing import Optional
 
 import sqlalchemy.dialects.postgresql as pg
-from sqlmodel import Column, Field, SQLModel, Relationship
-
-from src.users import models
+from sqlmodel import Column, Field, Relationship, SQLModel
 
 
 class Book(SQLModel, table=True):
@@ -20,10 +18,13 @@ class Book(SQLModel, table=True):
     published_date: date
     page_count: int
     language: str
-    user_id: int | None = Field(default=None, foreign_key="user.id")
     created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
     updated_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
-    user: Optional["models.User"] = Relationship(back_populates="books")
+    user_id: int | None = Field(default=None, foreign_key="user.id")
+    user: Optional["User"] = Relationship(back_populates="books")
+    reviews: List["Review"] = Relationship(
+        back_populates="book", sa_relationship_kwargs={"lazy": "selectin"}
+    )
 
     def __repr__(self):
         return f"Book {self.title}"

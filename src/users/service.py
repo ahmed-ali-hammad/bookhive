@@ -34,7 +34,7 @@ class UserService:
         return user
 
     async def create_token(self, user_data: dict) -> dict:
-        access_token = UserProfile.create_token(user_data, 10 * 60)
+        access_token = UserProfile.create_token(user_data, 120 * 60)
         refresh_token = UserProfile.create_token(user_data, 24 * 60 * 60, True)
 
         return {"access_token": access_token, "refresh_token": refresh_token}
