@@ -4,6 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.db.main import get_session
+from src.reviews.exceptions import (
+    BookNotFoundException,
+    UserNotFoundException,
+)
 from src.reviews.schemas import ReviewCreateModel, ReviewModel
 from src.reviews.service import ReviewService
 from src.users.dependencies import AccessTokenBearer, RoleChecker, get_current_user
@@ -27,15 +31,24 @@ async def create_review(
 ) -> ReviewModel:
     """Create a new review for a book"""
 
-    user = await get_current_user(token_details, session)
+    try:
+        user = await get_current_user(token_details, session)
 
-    review = await review_service.add_new_review(
-        user.email, book_id, review_data, session
-    )
-
-    if review is not None:
+        review = await review_service.add_new_review(
+            user.email, book_id, review_data, session
+        )
         return review
-    else:
+
+    except UserNotFoundException as ex:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Review is not added"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="User doesn't exist"
+        )
+    except BookNotFoundException as ex:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Book doesn't exist"
+        )
+    except Exception as ex:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Something went wrong",
         )
