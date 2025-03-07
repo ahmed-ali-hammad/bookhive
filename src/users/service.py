@@ -2,8 +2,8 @@ from pydantic import EmailStr
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from src.exceptions import InvalidCredentials, UserNotFoundException
 from src.users.domains import UserProfile
-from src.users.exceptions import IncorrectPasswordException, UserNotFoundException
 from src.users.models import User
 from src.users.schemas import UserCreateModel
 
@@ -47,7 +47,7 @@ class UserService:
         is_password_verified = UserProfile.verify_password(password, user.password_hash)
 
         if not is_password_verified:
-            raise IncorrectPasswordException
+            raise InvalidCredentials
 
         user_data = {"email": email, "role": user.role}
 

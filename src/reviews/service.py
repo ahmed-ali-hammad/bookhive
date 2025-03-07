@@ -5,7 +5,7 @@ from pydantic import EmailStr
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.books.service import BookService
-from src.reviews.exceptions import (
+from src.exceptions import (
     BookNotFoundException,
     UserNotFoundException,
 )
@@ -15,6 +15,7 @@ from src.users.service import UserService
 
 book_service = BookService()
 user_service = UserService()
+
 
 logger = logging.getLogger(__name__)
 

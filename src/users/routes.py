@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.db.main import get_session
+from src.exceptions import InvalidCredentials, UserNotFoundException
 from src.redis import add_jti_to_blocklist
 from src.users.dependencies import (
     AccessTokenBearer,
@@ -11,7 +12,6 @@ from src.users.dependencies import (
     RoleChecker,
     get_current_user,
 )
-from src.users.exceptions import IncorrectPasswordException, UserNotFoundException
 from src.users.models import User
 from src.users.schemas import UserAuthModel, UserBookModel, UserCreateModel, UserModel
 from src.users.service import UserService
@@ -54,7 +54,7 @@ async def generate_token(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
-    except IncorrectPasswordException:
+    except InvalidCredentials:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect password"
         )

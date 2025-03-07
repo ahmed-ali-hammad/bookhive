@@ -1,6 +1,6 @@
-from typing import Any, Callable
-from fastapi.requests import Request
-from fastapi.responses import JSONResponse
+"""
+Custom exception definitions for the application.
+"""
 
 
 class BookHiveException(Exception):

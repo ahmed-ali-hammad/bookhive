@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.db.main import get_session
-from src.reviews.exceptions import (
+from src.exceptions import (
     BookNotFoundException,
     UserNotFoundException,
 )
