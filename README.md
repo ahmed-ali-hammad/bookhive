@@ -55,6 +55,7 @@ fastapi dev ./src/main.py --host 0.0.0.0    # run the server in dev mode
 ```
 
 - API Docs [http://0.0.0.0:8000/docs]
+- JSON version of OpenAPI documentation [http://0.0.0.0:8000/openapi.json]
 - Healthcheck endpoints [http://0.0.0.0:8000/health]
 
 
@@ -68,9 +69,12 @@ alembic upgrade head  # apply the new migrations
 
 ### 🧪 Running the tests <a name = "tests"></a>
 [pytest](https://docs.pytest.org/) is used for testing.
+[schemathesis](https://schemathesis.readthedocs.io/en/stable/) for API testing using API specs
 
 ```bash
 $ pytest  # run tests
+$ st run http://0.0.0.0:8000/openapi.json --experimental=openapi-3.1
+st run http://0.0.0.0:8000/openapi.json --checks all --experimental=openapi-3.1
 ```
 
 ### Code Style & Linting

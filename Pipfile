@@ -19,6 +19,7 @@ redis = "*"
 ruff = "*"
 pytest = "*"
 pytest-asyncio = "*"
+schemathesis = "*"
 
 [requires]
 python_version = "3.13"
