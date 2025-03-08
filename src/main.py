@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from src.books.routes import book_router
+from src.middleware import register_middleware
 from src.reviews.routes import review_router
 from src.users.routes import user_router
 
@@ -17,6 +18,8 @@ async def life_span(app: FastAPI):
 app = FastAPI(
     title="Book API", description="Rest API for a book service", lifespan=life_span
 )
+
+register_middleware(app)
 
 app.include_router(book_router, prefix="/api/books")
 app.include_router(user_router, prefix="/api/users")
