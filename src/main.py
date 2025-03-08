@@ -16,14 +16,14 @@ async def life_span(app: FastAPI):
 
 
 app = FastAPI(
-    title="Book API", description="Rest API for a book service", lifespan=life_span
+    title="BookHive", description="Rest API for a book service", lifespan=life_span
 )
 
 register_middleware(app)
 
-app.include_router(book_router, prefix="/api/books")
-app.include_router(user_router, prefix="/api/users")
-app.include_router(review_router, prefix="/api/reviews")
+app.include_router(book_router, prefix="/api/books", tags=["Books"])
+app.include_router(user_router, prefix="/api/users", tags=["Users"])
+app.include_router(review_router, prefix="/api/reviews", tags=["Reviews"])
 
 
 @app.get("/health", status_code=200)
