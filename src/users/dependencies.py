@@ -7,6 +7,7 @@ from fastapi.security.http import HTTPAuthorizationCredentials
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.db.main import get_session
+from src.exceptions import UserNotFoundException
 from src.redis import is_jti_in_blocklist
 from src.users.domains import UserProfile
 from src.users.models import User
@@ -84,6 +85,9 @@ async def get_current_user(
     user_email = token_details["user"]["email"]
 
     user = await user_service.get_user(user_email, session)
+
+    if user is None:
+        raise UserNotFoundException
 
     return user
 

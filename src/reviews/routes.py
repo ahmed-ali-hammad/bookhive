@@ -9,11 +9,15 @@ from src.exceptions import (
     UserNotFoundException,
 )
 from src.reviews.schemas import ReviewCreateModel, ReviewModel
-from src.reviews.service import ReviewService
+from src.reviews.service import ReviewService, get_review_service
 from src.users.dependencies import AccessTokenBearer, RoleChecker, get_current_user
+from src.app_logging import LoggingConfig
+
+logging_config = LoggingConfig()
+
+logger = LoggingConfig.get_logger(__name__)
 
 review_router = APIRouter()
-review_service = ReviewService()
 access_token_bearer = AccessTokenBearer()
 role_checker = RoleChecker(["admin", "user"])
 
@@ -23,17 +27,36 @@ role_checker = RoleChecker(["admin", "user"])
     dependencies=[Depends(role_checker)],
     status_code=status.HTTP_201_CREATED,
     responses={
-        403: {"description": "Not authenticated"},
+        403: {"description": "Not Authenticated"},
         400: {"description": "Bad Request"},
+        500: {"description": "Internal Server Error"},
     },
 )
 async def create_review(
     book_id: UUID,
     review_data: ReviewCreateModel,
+    review_service: ReviewService = Depends(get_review_service),
     session: AsyncSession = Depends(get_session),
     token_details: dict = Depends(access_token_bearer),
 ) -> ReviewModel:
-    """Create a new review for a book"""
+    """
+    Creates a new review for a specific book.
+
+    This endpoint allows an authenticated user to submit a review for a book identified by `book_id`.
+    The review details should be provided in the request body.
+
+    Args:
+        book_id (UUID): The unique identifier of the book being reviewed.
+        review_data: The review content
+
+    Returns:
+        ReviewModel: The created review.
+
+    Raises:
+        HTTPException (400): If the user or book does not exist.
+        HTTPException (403): If the user is not authenticated.
+        HTTPException (500): If an unexpected error occurs.
+    """
 
     try:
         user = await get_current_user(token_details, session)
@@ -52,6 +75,7 @@ async def create_review(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Book doesn't exist"
         )
     except Exception as ex:
+        logger.error(f"Exception is {ex}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Something went wrong",

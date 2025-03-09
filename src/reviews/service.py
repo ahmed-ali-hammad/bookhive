@@ -1,4 +1,4 @@
-import logging
+from src.app_logging import LoggingConfig
 from uuid import UUID
 
 from pydantic import EmailStr
@@ -17,10 +17,19 @@ book_service = BookService()
 user_service = UserService()
 
 
-logger = logging.getLogger(__name__)
+logging_config = LoggingConfig()
+
+logger = LoggingConfig.get_logger("uvicorn.access")
 
 
 class ReviewService:
+    """
+    A service class for managing reviews in the application.
+
+    This class provides methods to interact with reviews, such as adding new reviews
+    for books.
+    """
+
     async def add_new_review(
         self,
         user_email: EmailStr,
@@ -28,6 +37,22 @@ class ReviewService:
         review_data: ReviewCreateModel,
         session: AsyncSession,
     ):
+        """
+        Adds a new review for a book by a user.
+
+        Args:
+            user_email (EmailStr): The email of the user submitting the review.
+            book_id (UUID): The unique identifier of the book being reviewed.
+            review_data (ReviewCreateModel): The data for the new review.
+            session (AsyncSession): The database session for executing queries.
+
+        Returns:
+            Review: The newly created review object.
+
+        Raises:
+            BookNotFoundException: If the specified book does not exist in the database.
+            UserNotFoundException: If the specified user does not exist in the database.
+        """
         user = await user_service.get_user(email=user_email, session=session)
         book = await book_service.get_book(book_id=book_id, session=session)
 
@@ -35,6 +60,8 @@ class ReviewService:
             raise BookNotFoundException(f"Book {book_id} doesn't exist")
         if user is None:
             raise UserNotFoundException(f"User {user_email} doesn't exist")
+
+        logger.info(f"Creating a review for book {book_id}")
 
         review = Review(**review_data.model_dump())
         review.user_id = user.id
@@ -44,3 +71,10 @@ class ReviewService:
         await session.commit()
 
         return review
+
+
+review_service = ReviewService()
+
+
+def get_review_service():
+    return review_service

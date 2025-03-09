@@ -52,6 +52,7 @@ pipenv shell  # spawns a shell within the virtualenv
 ```bash
 source ./config/.env.example    # add the environment variables to the running terminal
 fastapi dev ./src/main.py --host 0.0.0.0    # run the server in dev mode
+python cli.py run-webapp    # run using uvicorn
 ```
 
 - API Docs [http://0.0.0.0:8000/docs]
