@@ -9,6 +9,11 @@ from src.users.schemas import UserCreateModel
 
 
 class UserService:
+    def __new__(cls):
+        if not hasattr(cls, "instance"):
+            cls.instance = super().__new__(cls)
+        return cls.instance
+
     async def get_user(self, email: EmailStr, session: AsyncSession) -> User:
         statement = select(User).where(User.email == email)
 

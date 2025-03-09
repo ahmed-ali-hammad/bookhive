@@ -17,7 +17,6 @@ from src.users.schemas import UserAuthModel, UserBookModel, UserCreateModel, Use
 from src.users.service import UserService
 
 user_router = APIRouter()
-user_service = UserService()
 role_checker = RoleChecker(["admin", "user"])
 
 
@@ -31,7 +30,9 @@ async def get_current_user(
 
 @user_router.post("/signup", status_code=status.HTTP_201_CREATED)
 async def create_user(
-    user_data: UserCreateModel, session: AsyncSession = Depends(get_session)
+    user_data: UserCreateModel,
+    user_service: UserService = Depends(UserService),
+    session: AsyncSession = Depends(get_session),
 ) -> UserModel:
     user = await user_service.create_new_user(user_data, session)
 
@@ -43,7 +44,9 @@ async def create_user(
 
 @user_router.post("/auth/token", status_code=status.HTTP_200_OK)
 async def generate_token(
-    auth_data: UserAuthModel, session: AsyncSession = Depends(get_session)
+    auth_data: UserAuthModel,
+    user_service: UserService = Depends(UserService),
+    session: AsyncSession = Depends(get_session),
 ) -> dict:
     """Login endpoint"""
     try:
@@ -65,6 +68,7 @@ async def generate_token(
 @user_router.post("/auth/refresh-token", status_code=status.HTTP_200_OK)
 async def refresh_token(
     token_data: dict = Depends(RefreshTokenBearer()),
+    user_service: UserService = Depends(UserService),
 ) -> dict:
     user_data = {"email": token_data["user"]["email"]}
     new_token = await user_service.refresh_token(user_data=user_data)
