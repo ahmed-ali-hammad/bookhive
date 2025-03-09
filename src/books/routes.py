@@ -20,7 +20,13 @@ role_checker = RoleChecker(["admin", "user"])
 
 
 @book_router.get(
-    "/", dependencies=[Depends(role_checker)], status_code=status.HTTP_200_OK
+    "/",
+    dependencies=[Depends(role_checker)],
+    status_code=status.HTTP_200_OK,
+    responses={
+        403: {"description": "Not authenticated"},
+        400: {"description": "Bad Request"},
+    },
 )
 async def get_all_books(
     session: AsyncSession = Depends(get_session),
@@ -35,6 +41,10 @@ async def get_all_books(
     "/user/{user_id}",
     dependencies=[Depends(role_checker)],
     status_code=status.HTTP_200_OK,
+    responses={
+        403: {"description": "Not authenticated"},
+        400: {"description": "Bad Request"},
+    },
 )
 async def get_user_books(
     user_id: int,
@@ -51,6 +61,10 @@ async def get_user_books(
     "/current-user",
     dependencies=[Depends(role_checker)],
     status_code=status.HTTP_200_OK,
+    responses={
+        403: {"description": "Not authenticated"},
+        400: {"description": "Bad Request"},
+    },
 )
 async def get_current_user_books(
     session: AsyncSession = Depends(get_session),
@@ -67,6 +81,10 @@ async def get_current_user_books(
     "/get-book/{book_id}",
     dependencies=[Depends(role_checker)],
     status_code=status.HTTP_200_OK,
+    responses={
+        403: {"description": "Not authenticated"},
+        400: {"description": "Bad Request"},
+    },
 )
 async def get_book(
     book_id: UUID,
@@ -87,6 +105,10 @@ async def get_book(
     "/create-book",
     dependencies=[Depends(role_checker)],
     status_code=status.HTTP_201_CREATED,
+    responses={
+        403: {"description": "Not authenticated"},
+        400: {"description": "Bad Request"},
+    },
 )
 async def create_book(
     book_data: BookCreateModel,
@@ -107,7 +129,14 @@ async def create_book(
         )
 
 
-@book_router.put("/update-book/{book_id}", dependencies=[Depends(role_checker)])
+@book_router.put(
+    "/update-book/{book_id}",
+    dependencies=[Depends(role_checker)],
+    responses={
+        403: {"description": "Not authenticated"},
+        400: {"description": "Bad Request"},
+    },
+)
 async def update_book(
     book_id: UUID,
     book_data: BookUpdateModel,
@@ -125,7 +154,14 @@ async def update_book(
         )
 
 
-@book_router.delete("/delete-book/{book_id}", dependencies=[Depends(role_checker)])
+@book_router.delete(
+    "/delete-book/{book_id}",
+    dependencies=[Depends(role_checker)],
+    responses={
+        403: {"description": "Not authenticated"},
+        400: {"description": "Bad Request"},
+    },
+)
 async def delete_book(
     book_id: UUID,
     session: AsyncSession = Depends(get_session),

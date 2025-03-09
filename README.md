@@ -74,7 +74,7 @@ alembic upgrade head  # apply the new migrations
 ```bash
 $ pytest  # run tests
 $ st run http://0.0.0.0:8000/openapi.json --experimental=openapi-3.1
-st run http://0.0.0.0:8000/openapi.json --checks all --experimental=openapi-3.1
+$ st run http://0.0.0.0:8000/openapi.json --checks all --experimental=openapi-3.1
 ```
 
 ### Code Style & Linting

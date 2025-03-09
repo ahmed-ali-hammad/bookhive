@@ -20,7 +20,14 @@ user_router = APIRouter()
 role_checker = RoleChecker(["admin", "user"])
 
 
-@user_router.get("/me", status_code=status.HTTP_200_OK)
+@user_router.get(
+    "/me",
+    status_code=status.HTTP_200_OK,
+    responses={
+        403: {"description": "Not authenticated"},
+        400: {"description": "Bad Request"},
+    },
+)
 async def get_current_user(
     user: User = Depends(get_current_user),
     _: Union[bool, Exception] = Depends(role_checker),
@@ -28,12 +35,19 @@ async def get_current_user(
     return user
 
 
-@user_router.post("/signup", status_code=status.HTTP_201_CREATED)
+@user_router.post(
+    "/signup",
+    status_code=status.HTTP_201_CREATED,
+    response_model=UserModel,
+    responses={
+        409: {"description": "User already exists"},
+    },
+)
 async def create_user(
     user_data: UserCreateModel,
     user_service: UserService = Depends(UserService),
     session: AsyncSession = Depends(get_session),
-) -> UserModel:
+):
     user = await user_service.create_new_user(user_data, session)
 
     if not user:
@@ -42,7 +56,15 @@ async def create_user(
     return user
 
 
-@user_router.post("/auth/token", status_code=status.HTTP_200_OK)
+@user_router.post(
+    "/auth/token",
+    status_code=status.HTTP_200_OK,
+    responses={
+        404: {"description": "User not found"},
+        401: {"description": "Incorrect password"},
+        400: {"description": "Bad Request"},
+    },
+)
 async def generate_token(
     auth_data: UserAuthModel,
     user_service: UserService = Depends(UserService),
@@ -65,7 +87,14 @@ async def generate_token(
     return token
 
 
-@user_router.post("/auth/refresh-token", status_code=status.HTTP_200_OK)
+@user_router.post(
+    "/auth/refresh-token",
+    status_code=status.HTTP_200_OK,
+    responses={
+        403: {"description": "Not authenticated"},
+        400: {"description": "Bad Request"},
+    },
+)
 async def refresh_token(
     token_data: dict = Depends(RefreshTokenBearer()),
     user_service: UserService = Depends(UserService),
@@ -76,7 +105,14 @@ async def refresh_token(
     return {"access_token": new_token}
 
 
-@user_router.get("/auth/token/revoke", status_code=status.HTTP_200_OK)
+@user_router.get(
+    "/auth/token/revoke",
+    status_code=status.HTTP_200_OK,
+    responses={
+        403: {"description": "Not authenticated"},
+        400: {"description": "Bad Request"},
+    },
+)
 async def revoke_token(token_data: dict = Depends(AccessTokenBearer())) -> dict:
     """Logout endpoint"""
     jti = token_data["jti"]

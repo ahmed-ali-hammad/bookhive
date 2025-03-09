@@ -22,6 +22,10 @@ role_checker = RoleChecker(["admin", "user"])
     "/create-review/{book_id}",
     dependencies=[Depends(role_checker)],
     status_code=status.HTTP_201_CREATED,
+    responses={
+        403: {"description": "Not authenticated"},
+        400: {"description": "Bad Request"},
+    },
 )
 async def create_review(
     book_id: UUID,
