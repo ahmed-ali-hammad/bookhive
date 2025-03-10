@@ -1,10 +1,11 @@
 import click
 import uvicorn
-from src.main import app
 
 
 def run_service():
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="debug")
+    uvicorn.run(
+        "src.main:app", host="0.0.0.0", port=8000, log_level="debug", reload=True
+    )
 
 
 @click.group()

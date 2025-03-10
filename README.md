@@ -42,17 +42,19 @@ These instructions will get you a copy of the project up and running on your loc
 ### Installing
 
 ```bash
-docker compose up
-docker exec -it bookhive-dev /bin/bash   # spawns a shell within the docker container
-pipenv shell  # spawns a shell within the virtualenv 
+$ docker compose up
+$ docker exec -it bookhive-dev /bin/bash   # spawns a shell within the docker container
+$ pipenv shell  # spawns a shell within the virtualenv 
 ```
 
 
 ### ▶️ Running the webapp
 ```bash
-source ./config/.env.example    # add the environment variables to the running terminal
-fastapi dev ./src/main.py --host 0.0.0.0    # run the server in dev mode
-python cli.py run-webapp    # run using uvicorn
+$ source ./config/.env.example                # add the environment variables to the running terminal
+
+# To run the server, you can use one of the following commands:
+$ fastapi dev ./src/main.py --host 0.0.0.0    # Run the server in development mode
+$ python cli.py run-webapp                    # Run the server using Uvicorn
 ```
 
 - API Docs [http://0.0.0.0:8000/docs]
@@ -63,9 +65,9 @@ python cli.py run-webapp    # run using uvicorn
 ### Database Migrations
 
 ```bash
-alembic init -t async migrations  # init the migrations folder
-alembic revision --autogenerate -m "message"  # create a new migration version
-alembic upgrade head  # apply the new migrations
+$ alembic init -t async migrations  # init the migrations folder
+$ alembic revision --autogenerate -m "message"  # create a new migration version
+$ alembic upgrade head  # apply the new migrations
 ```
 
 ### 🧪 Running the tests <a name = "tests"></a>
