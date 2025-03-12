@@ -1,5 +1,3 @@
-
-
 <h3 align="center">BookHive</h3>
 
 <div align="center">

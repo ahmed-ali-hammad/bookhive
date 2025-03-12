@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from src.app_logging import LoggingConfig
 from src.db.main import get_session
 from src.exceptions import (
     BookNotFoundException,
@@ -11,9 +12,6 @@ from src.exceptions import (
 from src.reviews.schemas import ReviewCreateModel, ReviewModel
 from src.reviews.service import ReviewService, get_review_service
 from src.users.dependencies import AccessTokenBearer, RoleChecker, get_current_user
-from src.app_logging import LoggingConfig
-
-logging_config = LoggingConfig()
 
 logger = LoggingConfig.get_logger(__name__)
 
