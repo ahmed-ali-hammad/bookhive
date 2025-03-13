@@ -13,11 +13,10 @@ from src.reviews.schemas import ReviewCreateModel, ReviewModel
 from src.reviews.service import ReviewService, get_review_service
 from src.users.dependencies import AccessTokenBearer, RoleChecker, get_current_user
 
-logger = LoggingConfig.get_logger(__name__)
-
 review_router = APIRouter()
 access_token_bearer = AccessTokenBearer()
 role_checker = RoleChecker(["admin", "user"])
+logger = LoggingConfig.get_logger(__name__)
 
 
 @review_router.post(
@@ -55,6 +54,7 @@ async def create_review(
         HTTPException (403): If the user is not authenticated.
         HTTPException (500): If an unexpected error occurs.
     """
+    logger.info(f"Attempting to creating a review for book {book_id}")
 
     try:
         user = await get_current_user(token_details, session)
@@ -65,15 +65,23 @@ async def create_review(
         return review
 
     except UserNotFoundException as ex:
+        logger.warning(
+            f"Failed to create a review for book {book_id}: user does not exist."
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="User doesn't exist"
         )
     except BookNotFoundException as ex:
+        logger.warning(
+            f"Failed to create a review for book {book_id}: book does not exist."
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Book doesn't exist"
         )
     except Exception as ex:
-        logger.error(f"Exception is {ex}")
+        logger.error(
+            f"An exception occurred while creating a review for book {book_id}. Exception is: {ex}"
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Something went wrong",

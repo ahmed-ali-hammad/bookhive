@@ -3,7 +3,6 @@ from uuid import UUID
 from pydantic import EmailStr
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.app_logging import LoggingConfig
 from src.books.service import BookService
 from src.exceptions import (
     BookNotFoundException,
@@ -15,11 +14,6 @@ from src.users.service import UserService
 
 book_service = BookService()
 user_service = UserService()
-
-logging_config = LoggingConfig()
-
-
-logger = LoggingConfig.get_logger(__name__)
 
 
 class ReviewService:
@@ -60,8 +54,6 @@ class ReviewService:
             raise BookNotFoundException(f"Book {book_id} doesn't exist")
         if user is None:
             raise UserNotFoundException(f"User {user_email} doesn't exist")
-
-        logger.info(f"Creating a review for book {book_id}")
 
         review = Review(**review_data.model_dump())
         review.user_id = user.id

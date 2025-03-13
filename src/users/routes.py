@@ -3,6 +3,7 @@ from typing import Union
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from src.app_logging import LoggingConfig
 from src.db.main import get_session
 from src.exceptions import InvalidCredentials, UserNotFoundException
 from src.redis import add_jti_to_blocklist
@@ -18,6 +19,7 @@ from src.users.service import UserService
 
 user_router = APIRouter()
 role_checker = RoleChecker(["admin", "user"])
+logger = LoggingConfig.get_logger(__name__)
 
 
 @user_router.get(
@@ -48,9 +50,13 @@ async def create_user(
     user_service: UserService = Depends(UserService),
     session: AsyncSession = Depends(get_session),
 ):
+    logger.info(f"Attempting to create user: '{user_data.email}'")
     user = await user_service.create_new_user(user_data, session)
 
     if not user:
+        logger.warning(
+            f"User creation failed: user '{user_data.email}' already exists."
+        )
         raise HTTPException(status_code=409, detail="User already exists")
 
     return user
