@@ -9,14 +9,15 @@ from src.books.schemas import (
     BookModel,
     BookUpdateModel,
 )
+from src.app_logging import LoggingConfig
 from src.books.service import BookService
 from src.db.main import get_session
 from src.users.dependencies import AccessTokenBearer, RoleChecker, get_current_user
 
 book_router = APIRouter()
-book_service = BookService()
 access_token_bearer = AccessTokenBearer()
 role_checker = RoleChecker(["admin", "user"])
+logger = LoggingConfig.get_logger(__name__)
 
 
 @book_router.get(
@@ -29,12 +30,38 @@ role_checker = RoleChecker(["admin", "user"])
     },
 )
 async def get_all_books(
+    book_service: BookService = Depends(BookService),
     session: AsyncSession = Depends(get_session),
     _: dict = Depends(access_token_bearer),
 ) -> list[BookModel]:
-    """Returns a list of all available books"""
-    books = await book_service.get_all_books(session)
-    return books
+    """
+    Fetch all available books.
+
+    This endpoint retrieves a list of all books from the database.
+    Authentication is required, and only authorized users can access this resource.
+
+    Args:
+        book_service (BookService): The service handling book-related operations.
+        session (AsyncSession): The database session dependency.
+        _ (dict): The access token extracted from the request (for authentication).
+
+    Returns:
+        list[BookModel]: A list of books
+
+    Raises:
+        HTTPException: If an internal server error occurs.
+    """
+    try:
+        books = await book_service.get_all_books(session)
+        return books
+    except Exception as ex:
+        logger.error(
+            f"An error occurred while retrieving the list of books. Exception is: {ex}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Something went wrong",
+        )
 
 
 @book_router.get(
@@ -48,13 +75,21 @@ async def get_all_books(
 )
 async def get_user_books(
     user_id: int,
+    book_service: BookService = Depends(BookService),
     session: AsyncSession = Depends(get_session),
     _: dict = Depends(access_token_bearer),
 ) -> list[BookModel]:
-    """Returns a list of books for a specific user"""
-
-    books = await book_service.get_user_books(user_id, session)
-    return books
+    try:
+        books = await book_service.get_user_books(user_id, session)
+        return books
+    except Exception as ex:
+        logger.error(
+            f"An error occurred while retrieving the list of books for user: {user_id}. Exception is: {ex}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Something went wrong",
+        )
 
 
 @book_router.get(
@@ -68,6 +103,7 @@ async def get_user_books(
 )
 async def get_current_user_books(
     session: AsyncSession = Depends(get_session),
+    book_service: BookService = Depends(BookService),
     token_details: dict = Depends(access_token_bearer),
 ) -> list[BookModel]:
     """Returns a list of books for the current logged in user"""
@@ -88,6 +124,7 @@ async def get_current_user_books(
 )
 async def get_book(
     book_id: UUID,
+    book_service: BookService = Depends(BookService),
     session: AsyncSession = Depends(get_session),
     _: dict = Depends(access_token_bearer),
 ) -> BookDetailModel:
@@ -112,6 +149,7 @@ async def get_book(
 )
 async def create_book(
     book_data: BookCreateModel,
+    book_service: BookService = Depends(BookService),
     session: AsyncSession = Depends(get_session),
     token_details: dict = Depends(access_token_bearer),
 ) -> BookModel:
@@ -140,6 +178,7 @@ async def create_book(
 async def update_book(
     book_id: UUID,
     book_data: BookUpdateModel,
+    book_service: BookService = Depends(BookService),
     session: AsyncSession = Depends(get_session),
     _: dict = Depends(access_token_bearer),
 ) -> BookModel:
@@ -164,6 +203,7 @@ async def update_book(
 )
 async def delete_book(
     book_id: UUID,
+    book_service: BookService = Depends(BookService),
     session: AsyncSession = Depends(get_session),
     _: dict = Depends(access_token_bearer),
 ):

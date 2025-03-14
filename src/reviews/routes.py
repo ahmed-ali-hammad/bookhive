@@ -54,7 +54,7 @@ async def create_review(
         HTTPException (403): If the user is not authenticated.
         HTTPException (500): If an unexpected error occurs.
     """
-    logger.info(f"Attempting to creating a review for book {book_id}")
+    logger.info(f"Attempting to create a review for book {book_id}")
 
     try:
         user = await get_current_user(token_details, session)
