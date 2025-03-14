@@ -21,6 +21,13 @@ class UserService:
 
         return results.first()
 
+    async def get_user_by_id(self, id: int, session: AsyncSession) -> User:
+        statement = select(User).where(User.id == id)
+
+        results = await session.exec(statement)
+
+        return results.first()
+
     async def create_new_user(self, user_data: UserCreateModel, session: AsyncSession):
         # Check if user exists
         if await self.get_user(user_data.email, session) is not None:
