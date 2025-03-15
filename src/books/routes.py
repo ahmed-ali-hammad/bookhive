@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import Response
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.app_logging import LoggingConfig
@@ -373,7 +374,7 @@ async def delete_book(
     try:
         _ = await book_service.delete_book(book_id, session)
 
-        return {"Message": f"book #{book_id} is deleted"}
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
     except BookNotFoundException:
         logger.warning(
             f"Failed to delete book {book_id}. The book was not found in the database."

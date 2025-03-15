@@ -30,7 +30,7 @@ class ReviewService:
         book_id: UUID,
         review_data: ReviewCreateModel,
         session: AsyncSession,
-    ):
+    ) -> Review:
         """
         Adds a new review for a book by a user.
 
