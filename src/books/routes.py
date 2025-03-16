@@ -258,7 +258,7 @@ async def create_book(
 
     try:
         book = await book_service.create_book(
-            book_data, token_details["user"]["email"], session
+            book_data, token_details["user"]["id"], session
         )
         return book
     except UserNotFoundException:
