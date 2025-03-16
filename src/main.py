@@ -4,18 +4,21 @@ from fastapi import Depends, FastAPI
 from fastapi.exceptions import HTTPException
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from src.app_logging import LoggingConfig
 from src.books.routes import book_router
 from src.db.main import check_db_connection, get_session
 from src.middleware import register_middleware
 from src.reviews.routes import review_router
 from src.users.routes import user_router
 
+logger = LoggingConfig.get_logger(__name__)
+
 
 @asynccontextmanager
 async def life_span(app: FastAPI):
-    print("Server is starting")
+    logger.info("Server is starting")
     yield
-    print("Server has stopped")
+    logger.info("Server has stopped")
 
 
 app = FastAPI(

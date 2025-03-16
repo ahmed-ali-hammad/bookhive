@@ -1,9 +1,10 @@
+from typing import AsyncGenerator
+
 from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import text
 from sqlmodel import create_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
-from typing import AsyncGenerator
 
 from src.app_logging import LoggingConfig
 from src.config import settings
