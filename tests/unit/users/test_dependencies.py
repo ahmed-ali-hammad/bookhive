@@ -267,7 +267,7 @@ class TestGetCurrentUser:
         }
         session = None
 
-        async def mock_get_user(self, user_email, session):
+        async def mock_get_user_by_email(self, user_email, session):
             class MockUser:
                 email = token_detail["user"]["email"]
                 role = token_detail["user"]["role"]
@@ -291,7 +291,7 @@ class TestGetCurrentUser:
         }
         session = None
 
-        async def mock_get_user(self, user_email, session):
+        async def mock_get_user_by_email(self, user_email, session):
             return None
 
         monkeypatch.setattr(UserService, "get_user", mock_get_user)
@@ -331,7 +331,7 @@ class TestGetCurrentUser:
         }
         session = None
 
-        async def mock_get_user(self, user_email, session):
+        async def mock_get_user_by_email(self, user_email, session):
             raise Exception("Database access error")
 
         monkeypatch.setattr(UserService, "get_user", mock_get_user)

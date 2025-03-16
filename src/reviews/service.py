@@ -47,7 +47,7 @@ class ReviewService:
             BookNotFoundException: If the specified book does not exist in the database.
             UserNotFoundException: If the specified user does not exist in the database.
         """
-        user = await user_service.get_user(email=user_email, session=session)
+        user = await user_service.get_user_by_email(email=user_email, session=session)
         book = await book_service.get_book(book_id=book_id, session=session)
 
         if book is None:

@@ -58,7 +58,9 @@ async def get_current_logged_in_user(
             - 500: If an unexpected error occurs.
     """
     try:
-        user = await user_service.get_user(token_details["user"]["email"], session)
+        user = await user_service.get_user_by_email(
+            token_details["user"]["email"], session
+        )
         if user is None:
             raise HTTPException(status_code=404, detail="User doesn't exists")
         return user
@@ -164,7 +166,7 @@ async def generate_token(
         500: Internal server error occurred.
     """
     try:
-        token = await user_service.generate_token(
+        token = await user_service.authenticate_and_generate_token(
             email=auth_data.email, password=auth_data.password, session=session
         )
         return token
