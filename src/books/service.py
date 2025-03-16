@@ -87,7 +87,14 @@ class BookService:
 
         Returns:
             Book: The created book instance.
+
+        Raises:
+            UserNotFoundException: If the user does not exist.
         """
+        user = await user_service.get_user_by_id(id=user_id, session=session)
+        if user is None:
+            raise UserNotFoundException(f"User {user_id} doesn't exist")
+
         book = Book(**book_data.model_dump())
         book.user_id = user_id
 

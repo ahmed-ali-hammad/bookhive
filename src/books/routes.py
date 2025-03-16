@@ -14,7 +14,7 @@ from src.books.schemas import (
 from src.books.service import BookService
 from src.db.main import get_session
 from src.exceptions import BookNotFoundException, UserNotFoundException
-from src.users.dependencies import AccessTokenBearer, RoleChecker, get_current_user
+from src.users.dependencies import AccessTokenBearer, RoleChecker
 
 book_router = APIRouter()
 access_token_bearer = AccessTokenBearer()
@@ -147,9 +147,7 @@ async def get_current_user_books(
     """
 
     try:
-        user = await get_current_user(token_details, session)
-
-        books = await book_service.get_user_books(user.id, session)
+        books = await book_service.get_user_books(token_details["user"]["id"], session)
         return books
     except UserNotFoundException:
         logger.warning(
@@ -259,9 +257,9 @@ async def create_book(
     """
 
     try:
-        user = await get_current_user(token_details, session)
-
-        book = await book_service.create_book(book_data, user.id, session)
+        book = await book_service.create_book(
+            book_data, token_details["user"]["email"], session
+        )
         return book
     except UserNotFoundException:
         logger.warning(

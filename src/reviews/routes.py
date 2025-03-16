@@ -11,7 +11,7 @@ from src.exceptions import (
 )
 from src.reviews.schemas import ReviewCreateModel, ReviewModel
 from src.reviews.service import ReviewService, get_review_service
-from src.users.dependencies import AccessTokenBearer, RoleChecker, get_current_user
+from src.users.dependencies import AccessTokenBearer, RoleChecker
 
 review_router = APIRouter()
 access_token_bearer = AccessTokenBearer()
@@ -57,10 +57,8 @@ async def create_review(
     logger.info(f"Attempting to create a review for book {book_id}")
 
     try:
-        user = await get_current_user(token_details, session)
-
         review = await review_service.add_new_review(
-            user.email, book_id, review_data, session
+            token_details["user"]["email"], book_id, review_data, session
         )
         return review
 

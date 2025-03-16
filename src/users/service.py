@@ -2,7 +2,7 @@ from pydantic import EmailStr
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.exceptions import InvalidCredentials, UserNotFoundException
+from src.exceptions import InvalidCredentials, UserAlreadyExists, UserNotFoundException
 from src.users.domains import UserProfile
 from src.users.models import User
 from src.users.schemas import UserCreateModel
@@ -31,7 +31,7 @@ class UserService:
     async def create_new_user(self, user_data: UserCreateModel, session: AsyncSession):
         # Check if user exists
         if await self.get_user(user_data.email, session) is not None:
-            return False
+            raise UserAlreadyExists
 
         # Hash the password and prepare user data
         user_dict = user_data.model_dump()
@@ -61,7 +61,7 @@ class UserService:
         if not is_password_verified:
             raise InvalidCredentials
 
-        user_data = {"email": email, "role": user.role}
+        user_data = {"id": user.id, "email": email, "role": user.role}
 
         token = await self.create_token(user_data)
 

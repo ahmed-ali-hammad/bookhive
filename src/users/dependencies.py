@@ -83,12 +83,10 @@ async def get_current_user(
     session: AsyncSession = Depends(get_session),
 ) -> User:
     user_email = token_details["user"]["email"]
-
     user = await user_service.get_user(user_email, session)
 
     if user is None:
-        raise UserNotFoundException
-
+        raise HTTPException(status_code=404, detail="User doesn't exists")
     return user
 
 
