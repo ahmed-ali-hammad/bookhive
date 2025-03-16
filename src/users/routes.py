@@ -198,10 +198,36 @@ async def refresh_token(
     token_data: dict = Depends(RefreshTokenBearer()),
     user_service: UserService = Depends(UserService),
 ) -> dict:
-    user_data = token_data["user"]
-    new_token = await user_service.refresh_token(user_data=user_data)
+    """
+    Refresh the authentication token.
 
-    return {"access_token": new_token}
+    This endpoint validates the provided refresh token and issues a new access token.
+
+    Parameters:
+    - token_data (dict): The decoded refresh token data, containing user information.
+    - user_service (UserService): A dependency for handling user authentication services.
+
+    Returns:
+    - dict: A dictionary containing the new access token.
+
+    Raises:
+    - HTTPException (403): If the refresh token is invalid.
+    - HTTPException (400): If the request is invalid.
+    - HTTPException (500): If an unexpected error occurs.
+    """
+    try:
+        user_data = token_data["user"]
+        new_token = await user_service.refresh_token(user_data=user_data)
+
+        return {"access_token": new_token}
+    except Exception as ex:
+        logger.error(
+            f"An error occurred while refreshing a token for user '{token_data['user']['email']}'. Exception details: {ex}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Something went wrong, couldn't generate a new access token",
+        )
 
 
 @user_router.get(
@@ -213,9 +239,32 @@ async def refresh_token(
     },
 )
 async def revoke_token(token_data: dict = Depends(AccessTokenBearer())) -> dict:
-    """Logout endpoint"""
-    jti = token_data["jti"]
+    """
+    Revoke access token to log out a user.
 
-    await add_jti_to_blocklist(jti)
+    This endpoint invalidates the provided access token by adding its unique identifier (JTI)
+    to the blocklist, effectively logging the user out.
 
-    return {"Message": "Logged out successfuly"}
+    Parameters:
+    - token_data (dict): The decoded access token data, containing the JTI (unique token identifier).
+
+    Returns:
+    - dict: A message indicating successful logout.
+
+    Raises:
+    - HTTPException (403): If the user is not authenticated.
+    - HTTPException (400): If the request is invalid.
+    - HTTPException (500): If an unexpected error occurs while revoking the token.
+    """
+    try:
+        jti = token_data["jti"]
+        await add_jti_to_blocklist(jti)
+        return {"Message": "Logged out successfuly"}
+    except Exception as ex:
+        logger.error(
+            f"An error occurred while revoking a token for user '{token_data['user']['email']}'. Exception details: {ex}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Something went wrong, couldn't revoke token",
+        )
