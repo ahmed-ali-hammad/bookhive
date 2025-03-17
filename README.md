@@ -63,9 +63,18 @@ $ python cli.py run-webapp                    # Run the server using Uvicorn
 ### Database Migrations
 
 ```bash
-$ alembic init -t async migrations  # init the migrations folder
-$ alembic revision --autogenerate -m "message"  # create a new migration version
-$ alembic upgrade head  # apply the new migrations
+# init the migrations folder
+$ alembic init -t async migrations  
+
+# create a new migration version
+$ alembic revision --autogenerate -m "message"  
+
+# apply the new migrations
+$ alembic upgrade head  
+
+# Fill tables with dummy data (existing data will be deleted).
+# Migrations has to be applied first
+$ psql -U postgres -d bookhive -h bookhive-db -f init.sql   
 ```
 
 ### 🧪 Running the tests <a name = "tests"></a>

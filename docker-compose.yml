@@ -15,7 +15,9 @@ services:
     image: postgres:12
     container_name: bookhive-db
     environment:
+      - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=bookhive
     volumes:
       - ./db_mount:/var/lib/postgresql/data
 
