@@ -20,6 +20,7 @@ ruff = "*"
 pytest = "*"
 pytest-asyncio = "*"
 schemathesis = "*"
+pytest-mock = "*"
 
 [requires]
 python_version = "3.13"
