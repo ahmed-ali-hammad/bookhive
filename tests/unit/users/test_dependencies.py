@@ -274,7 +274,7 @@ class TestGetCurrentUser:
 
             return MockUser()
 
-        monkeypatch.setattr(UserService, "get_user", mock_get_user)
+        monkeypatch.setattr(UserService, "get_user_by_email", mock_get_user_by_email)
 
         user = await get_current_user(token_detail, session)
 
@@ -282,7 +282,7 @@ class TestGetCurrentUser:
         assert user.role == "user"
 
     @pytest.mark.asyncio
-    async def test_get_current_user_user_not_found(self, monkeypatch):
+    async def test_get_current_user_not_found(self, monkeypatch):
         token_detail = {
             "user": {"email": "valid@example.com", "role": "user"},
             "exp": 1737800948,
@@ -294,11 +294,10 @@ class TestGetCurrentUser:
         async def mock_get_user_by_email(self, user_email, session):
             return None
 
-        monkeypatch.setattr(UserService, "get_user", mock_get_user)
+        monkeypatch.setattr(UserService, "get_user_by_email", mock_get_user_by_email)
 
-        user = await get_current_user(token_detail, session)
-
-        assert user is None
+        with pytest.raises(HTTPException):
+            _ = await get_current_user(token_detail, session)
 
     @pytest.mark.asyncio
     async def test_get_current_user_missing_email(self):
@@ -334,7 +333,7 @@ class TestGetCurrentUser:
         async def mock_get_user_by_email(self, user_email, session):
             raise Exception("Database access error")
 
-        monkeypatch.setattr(UserService, "get_user", mock_get_user)
+        monkeypatch.setattr(UserService, "get_user_by_email", mock_get_user_by_email)
 
         with pytest.raises(Exception) as exc_info:
             await get_current_user(token_detail, session)
