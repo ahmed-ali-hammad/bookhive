@@ -36,3 +36,66 @@ class TestUserService:
 
         assert result is not None
         assert result.email == "unit.test.dummy@mockdata.com"
+
+    @pytest.mark.asyncio
+    async def test_get_user_by_email_case_insensitive(
+        self, mocker, mocked_user, get_mock_session
+    ):
+        mock_query = mocker.MagicMock()
+        mock_query.first.return_value = mocked_user
+        get_mock_session.exec.return_value = mock_query
+
+        email = "UNIT.TEST.DUMMY@MOCKDATA.COM"
+        result = await UserService().get_user_by_email(email, get_mock_session)
+
+        assert result is not None
+        assert result.email == "unit.test.dummy@mockdata.com"
+
+    @pytest.mark.asyncio
+    async def test_get_user_by_email_not_found(self, mocker, get_mock_session):
+        mock_query = mocker.MagicMock()
+        mock_query.first.return_value = None
+        get_mock_session.exec.return_value = mock_query
+
+        email = "unit.test.dummy@mockdata.com"
+        result = await UserService().get_user_by_email(email, get_mock_session)
+
+        assert result is None
+
+    @pytest.mark.asyncio
+    async def test_get_user_by_email_database_error(self, get_mock_session):
+        get_mock_session.exec.side_effect = Exception("Database Error")
+
+        email = "unit.test.dummy@mockdata.com"
+
+        with pytest.raises(Exception, match="Database Error"):
+            _ = await UserService().get_user_by_email(email, get_mock_session)
+
+    @pytest.mark.asyncio
+    async def test_get_user_by_id_success(self, mocker, mocked_user, get_mock_session):
+        mock_query = mocker.MagicMock()
+        mock_query.first.return_value = mocked_user
+        get_mock_session.exec.return_value = mock_query
+
+        result = await UserService().get_user_by_id(1, get_mock_session)
+
+        assert result is not None
+        assert result.email == "unit.test.dummy@mockdata.com"
+
+    @pytest.mark.asyncio
+    async def test_get_user_by_id_not_found(self, mocker, get_mock_session):
+        mock_query = mocker.MagicMock()
+        mock_query.first.return_value = None
+        get_mock_session.exec.return_value = mock_query
+
+        email = 10
+        result = await UserService().get_user_by_email(email, get_mock_session)
+
+        assert result is None
+
+    @pytest.mark.asyncio
+    async def test_get_user_by_id_database_error(self, get_mock_session):
+        get_mock_session.exec.side_effect = Exception("Database Error")
+
+        with pytest.raises(Exception, match="Database Error"):
+            _ = await UserService().get_user_by_email(20, get_mock_session)
