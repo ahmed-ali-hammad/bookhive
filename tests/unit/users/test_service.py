@@ -2,7 +2,9 @@ import pytest
 import pytest_asyncio
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from src.exceptions import UserAlreadyExists
 from src.users.models import User
+from src.users.schemas import UserCreateModel
 from src.users.service import UserService
 
 
@@ -99,3 +101,43 @@ class TestUserService:
 
         with pytest.raises(Exception, match="Database Error"):
             _ = await UserService().get_user_by_email(20, get_mock_session)
+
+    @pytest.mark.asyncio
+    async def test_create_new_user_success(self, mocker, get_mock_session):
+        mocker.patch(
+            "src.users.service.UserService.get_user_by_email", return_value=None
+        )
+
+        user_data = UserCreateModel(
+            username="new.user", email="new.user@test.de", password="password"
+        )
+
+        new_user = await UserService().create_new_user(user_data, get_mock_session)
+
+        assert new_user is not None
+        assert new_user.email == user_data.email
+        assert new_user.username == user_data.username
+        assert new_user.password_hash is not None
+        assert new_user.password_hash != user_data.password
+        assert hasattr(new_user, "id")
+
+        get_mock_session.commit.assert_called_once()
+        get_mock_session.add.assert_called_once_with(new_user)
+
+    @pytest.mark.asyncio
+    async def test_create_new_user_user_already_exist(
+        self, mocker, mocked_user, get_mock_session
+    ):
+        mocker.patch(
+            "src.users.service.UserService.get_user_by_email", return_value=mocked_user
+        )
+
+        user_data = UserCreateModel(
+            username="new.user", email="new.user@test.de", password="password"
+        )
+
+        with pytest.raises(UserAlreadyExists):
+            _ = await UserService().create_new_user(user_data, get_mock_session)
+
+        get_mock_session.add.assert_not_called()
+        get_mock_session.commit.assert_not_called()
