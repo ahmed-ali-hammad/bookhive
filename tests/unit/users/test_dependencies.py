@@ -22,7 +22,9 @@ class TestTokenBearer:
             "token_bearer": TokenBearer(),
             "user_email": user_email,
             "role": role,
-            "token": UserProfile.create_token({"email": user_email, "role": role}),
+            "token": UserProfile.generate_jwt_token(
+                {"email": user_email, "role": role}
+            ),
             "expired_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImVtYWlsIjoidGVzdF9yb2xlX2FnYWluQGJvb2toaXZlLmRlIiwicm9sZSI6InVzZXIifSwiZXhwIjoxNzM3MTIwODU2LCJqdGkiOiIyZDhmMzVjNy00OTVlLTQyOWMtYTQ5Ny1mNGFhNDZlNDU2NWMiLCJyZWZyZXNoIjpmYWxzZX0.g13YNuxRM3X41zlHcSQDCu1huKGZuKMau8MfM00r3xc",
             "invalid_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImVtYWlsIjoidGVzdF9yb2xlX2FnYWluQGJvb2toaXZlLmRlIiwicm9sZSI6InVzZXIifSwiZXhwIjoxNzM3MTIwODU2LCJqdGkiOiIyZDhmMzVjNy00OTVlLTQyOWMtYTQ5Ny1mNGFhNDZlNDU2NWMiLCJyZWZyZXNoIjpmYWxzZX0.g13YNuxRM3X41zlHcSQDCu1huKGZuKMau8MfM00r3ga",
         }

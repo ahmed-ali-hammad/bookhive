@@ -89,8 +89,8 @@ class UserService:
         Returns:
         - dict: A dictionary containing both access and refresh tokens.
         """
-        access_token = UserProfile.create_token(user_data, 120 * 60)
-        refresh_token = UserProfile.create_token(user_data, 24 * 60 * 60, True)
+        access_token = UserProfile.generate_jwt_token(user_data, 120 * 60)
+        refresh_token = UserProfile.generate_jwt_token(user_data, 24 * 60 * 60, True)
         return {"access_token": access_token, "refresh_token": refresh_token}
 
     async def authenticate_and_generate_token(self, email, password, session) -> dict:
@@ -132,5 +132,5 @@ class UserService:
         Returns:
         - str: The newly generated access token.
         """
-        new_token = UserProfile.create_token(user_data=user_data, expiry=10 * 60)
+        new_token = UserProfile.generate_jwt_token(user_data=user_data, expiry=10 * 60)
         return new_token

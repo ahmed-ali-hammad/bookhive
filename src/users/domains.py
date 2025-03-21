@@ -52,7 +52,7 @@ class UserProfile:
         return UserProfile.myctx.verify(password, password_hash)
 
     @staticmethod
-    def create_token(
+    def generate_jwt_token(
         user_data: dict, expiry: datetime.timedelta = 3600, refresh: bool = False
     ) -> str:
         """
