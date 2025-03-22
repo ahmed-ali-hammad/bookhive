@@ -16,7 +16,12 @@ async def dummy_user():
     return User(
         id=1,
         username="user.name",
-        email="unit.test.dummy@mockdata.com",
+        email="captain.unit.test@example.com",
         password_hash="b1458db3556bf74b02c31f2de5bbb65e32d747e5338156bbf559d2d1e6f71e3f",
         role="admin",
     )
+
+
+@pytest_asyncio.fixture
+async def dummy_user_data():
+    return {"id": 10, "email": "fake.user.potato@example.com", "role": "admin"}

@@ -14,11 +14,12 @@ class TestUserService:
         mock_query.first.return_value = dummy_user
         mock_async_db_session.exec.return_value = mock_query
 
-        email = "unit.test.dummy@mockdata.com"
-        result = await UserService().get_user_by_email(email, mock_async_db_session)
+        result = await UserService().get_user_by_email(
+            "captain.unit.test@example.com", mock_async_db_session
+        )
 
         assert result is not None
-        assert result.email == "unit.test.dummy@mockdata.com"
+        assert result.email == "captain.unit.test@example.com"
 
     @pytest.mark.asyncio
     async def test_get_user_by_email_case_insensitive(
@@ -28,11 +29,12 @@ class TestUserService:
         mock_query.first.return_value = dummy_user
         mock_async_db_session.exec.return_value = mock_query
 
-        email = "UNIT.TEST.DUMMY@MOCKDATA.COM"
-        result = await UserService().get_user_by_email(email, mock_async_db_session)
+        result = await UserService().get_user_by_email(
+            "CAPTAIN.UNIT.TEST@EXAMPLE.COM", mock_async_db_session
+        )
 
         assert result is not None
-        assert result.email == "unit.test.dummy@mockdata.com"
+        assert result.email == "captain.unit.test@example.com"
 
     @pytest.mark.asyncio
     async def test_get_user_by_email_not_found(self, mocker, mock_async_db_session):
@@ -40,8 +42,9 @@ class TestUserService:
         mock_query.first.return_value = None
         mock_async_db_session.exec.return_value = mock_query
 
-        email = "unit.test.dummy@mockdata.com"
-        result = await UserService().get_user_by_email(email, mock_async_db_session)
+        result = await UserService().get_user_by_email(
+            "captain.unit.test@example.com", mock_async_db_session
+        )
 
         assert result is None
 
@@ -49,10 +52,10 @@ class TestUserService:
     async def test_get_user_by_email_database_error(self, mock_async_db_session):
         mock_async_db_session.exec.side_effect = Exception("Database Error")
 
-        email = "unit.test.dummy@mockdata.com"
-
         with pytest.raises(Exception, match="Database Error"):
-            _ = await UserService().get_user_by_email(email, mock_async_db_session)
+            _ = await UserService().get_user_by_email(
+                "captain.unit.test@example.com", mock_async_db_session
+            )
 
     @pytest.mark.asyncio
     async def test_get_user_by_id_success(
@@ -65,7 +68,7 @@ class TestUserService:
         result = await UserService().get_user_by_id(1, mock_async_db_session)
 
         assert result is not None
-        assert result.email == "unit.test.dummy@mockdata.com"
+        assert result.email == "captain.unit.test@example.com"
 
     @pytest.mark.asyncio
     async def test_get_user_by_id_not_found(self, mocker, mock_async_db_session):
@@ -73,8 +76,9 @@ class TestUserService:
         mock_query.first.return_value = None
         mock_async_db_session.exec.return_value = mock_query
 
-        email = 10
-        result = await UserService().get_user_by_email(email, mock_async_db_session)
+        result = await UserService().get_user_by_email(
+            "user.never.found@example.com", mock_async_db_session
+        )
 
         assert result is None
 
@@ -126,9 +130,7 @@ class TestUserService:
         mock_async_db_session.commit.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_create_token_success(self, mocker):
-        user_data = {"id": 10, "email": "test.token@gmail.com", "role": "admin"}
-
+    async def test_create_token_success(self, mocker, dummy_user_data):
         mock_generate_jwt_token = mocker.patch(
             "src.users.domains.UserProfile.generate_jwt_token",
             side_effect=[
@@ -137,7 +139,7 @@ class TestUserService:
             ],
         )
 
-        token = await UserService().create_token(user_data)
+        token = await UserService().create_token(dummy_user_data)
 
         assert token is not None
         assert (
@@ -171,7 +173,7 @@ class TestUserService:
         )
 
         token = await UserService().authenticate_and_generate_token(
-            email="unit.test.dummy@mockdata.com",
+            email="captain.unit.test@example.com",
             password="Bookhive1234",
             session=mock_async_db_session,
         )
@@ -195,7 +197,7 @@ class TestUserService:
 
         with pytest.raises(UserNotFoundException):
             _ = await UserService().authenticate_and_generate_token(
-                email="unit.test.dummy@mockdata.com",
+                email="captain.unit.test@example.com",
                 password="Bookhive1234",
                 session=mock_async_db_session,
             )
@@ -214,20 +216,19 @@ class TestUserService:
 
         with pytest.raises(InvalidCredentials):
             _ = await UserService().authenticate_and_generate_token(
-                email="unit.test.dummy@mockdata.com",
+                email="captain.unit.test@example.com",
                 password="Bookhive1234",
                 session=mock_async_db_session,
             )
 
     @pytest.mark.asyncio
-    async def test_refresh_token_success(self, mocker):
+    async def test_refresh_token_success(self, mocker, dummy_user_data):
         mock_generate_jwt_token = mocker.patch(
             "src.users.domains.UserProfile.generate_jwt_token",
             return_value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxMCwiZW1haWwiOiJ0ZXN0LnRva2VuQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiJ9LCJleHAiOjE3NDI2NTM2MzAsImp0aSI6Ijg3YTNjMzU4LTBjZTgtNDQ5OC05ZDZjLWU0MmRhMDNmOTVjMCIsInJlZnJlc2giOmZhbHNlfQ.uNHFq3mpLzepUsmD2VzEjFLfXjcQiYCHuvITF2lVyrQ",
         )
 
-        user_data = {"id": 10, "email": "test.token@gmail.com", "role": "admin"}
-        new_token = await UserService().refresh_token(user_data)
+        new_token = await UserService().refresh_token(dummy_user_data)
 
         assert new_token is not None
         mock_generate_jwt_token.assert_called_once()
