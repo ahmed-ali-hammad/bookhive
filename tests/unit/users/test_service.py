@@ -236,3 +236,17 @@ class TestUserService:
                 password="Bookhive1234",
                 session=get_mock_session,
             )
+
+    @pytest.mark.asyncio
+    async def test_refresh_token_success(self, mocker):
+        mock_generate_jwt_token = mocker.patch(
+            "src.users.domains.UserProfile.generate_jwt_token",
+            return_value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxMCwiZW1haWwiOiJ0ZXN0LnRva2VuQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiJ9LCJleHAiOjE3NDI2NTM2MzAsImp0aSI6Ijg3YTNjMzU4LTBjZTgtNDQ5OC05ZDZjLWU0MmRhMDNmOTVjMCIsInJlZnJlc2giOmZhbHNlfQ.uNHFq3mpLzepUsmD2VzEjFLfXjcQiYCHuvITF2lVyrQ",
+        )
+
+        user_data = {"id": 10, "email": "test.token@gmail.com", "role": "admin"}
+        new_token = await UserService().refresh_token(user_data)
+
+        assert new_token is not None
+        mock_generate_jwt_token.assert_called_once()
+        assert isinstance(new_token, str)
