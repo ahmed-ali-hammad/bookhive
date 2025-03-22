@@ -1,110 +1,92 @@
 import pytest
-import pytest_asyncio
-from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.exceptions import InvalidCredentials, UserAlreadyExists, UserNotFoundException
-from src.users.models import User
 from src.users.schemas import UserCreateModel
 from src.users.service import UserService
-
-
-@pytest_asyncio.fixture
-def get_mock_session(mocker):
-    session = mocker.AsyncMock(spec=AsyncSession)
-    yield session
-
-
-@pytest_asyncio.fixture
-async def mocked_user():
-    return User(
-        id=1,
-        username="user.name",
-        email="unit.test.dummy@mockdata.com",
-        password_hash="b1458db3556bf74b02c31f2de5bbb65e32d747e5338156bbf559d2d1e6f71e3f",
-        role="admin",
-    )
 
 
 class TestUserService:
     @pytest.mark.asyncio
     async def test_get_user_by_email_success(
-        self, mocker, mocked_user, get_mock_session
+        self, mocker, dummy_user, mock_async_db_session
     ):
         mock_query = mocker.MagicMock()
-        mock_query.first.return_value = mocked_user
-        get_mock_session.exec.return_value = mock_query
+        mock_query.first.return_value = dummy_user
+        mock_async_db_session.exec.return_value = mock_query
 
         email = "unit.test.dummy@mockdata.com"
-        result = await UserService().get_user_by_email(email, get_mock_session)
+        result = await UserService().get_user_by_email(email, mock_async_db_session)
 
         assert result is not None
         assert result.email == "unit.test.dummy@mockdata.com"
 
     @pytest.mark.asyncio
     async def test_get_user_by_email_case_insensitive(
-        self, mocker, mocked_user, get_mock_session
+        self, mocker, dummy_user, mock_async_db_session
     ):
         mock_query = mocker.MagicMock()
-        mock_query.first.return_value = mocked_user
-        get_mock_session.exec.return_value = mock_query
+        mock_query.first.return_value = dummy_user
+        mock_async_db_session.exec.return_value = mock_query
 
         email = "UNIT.TEST.DUMMY@MOCKDATA.COM"
-        result = await UserService().get_user_by_email(email, get_mock_session)
+        result = await UserService().get_user_by_email(email, mock_async_db_session)
 
         assert result is not None
         assert result.email == "unit.test.dummy@mockdata.com"
 
     @pytest.mark.asyncio
-    async def test_get_user_by_email_not_found(self, mocker, get_mock_session):
+    async def test_get_user_by_email_not_found(self, mocker, mock_async_db_session):
         mock_query = mocker.MagicMock()
         mock_query.first.return_value = None
-        get_mock_session.exec.return_value = mock_query
+        mock_async_db_session.exec.return_value = mock_query
 
         email = "unit.test.dummy@mockdata.com"
-        result = await UserService().get_user_by_email(email, get_mock_session)
+        result = await UserService().get_user_by_email(email, mock_async_db_session)
 
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_get_user_by_email_database_error(self, get_mock_session):
-        get_mock_session.exec.side_effect = Exception("Database Error")
+    async def test_get_user_by_email_database_error(self, mock_async_db_session):
+        mock_async_db_session.exec.side_effect = Exception("Database Error")
 
         email = "unit.test.dummy@mockdata.com"
 
         with pytest.raises(Exception, match="Database Error"):
-            _ = await UserService().get_user_by_email(email, get_mock_session)
+            _ = await UserService().get_user_by_email(email, mock_async_db_session)
 
     @pytest.mark.asyncio
-    async def test_get_user_by_id_success(self, mocker, mocked_user, get_mock_session):
+    async def test_get_user_by_id_success(
+        self, mocker, dummy_user, mock_async_db_session
+    ):
         mock_query = mocker.MagicMock()
-        mock_query.first.return_value = mocked_user
-        get_mock_session.exec.return_value = mock_query
+        mock_query.first.return_value = dummy_user
+        mock_async_db_session.exec.return_value = mock_query
 
-        result = await UserService().get_user_by_id(1, get_mock_session)
+        result = await UserService().get_user_by_id(1, mock_async_db_session)
 
         assert result is not None
         assert result.email == "unit.test.dummy@mockdata.com"
 
     @pytest.mark.asyncio
-    async def test_get_user_by_id_not_found(self, mocker, get_mock_session):
+    async def test_get_user_by_id_not_found(self, mocker, mock_async_db_session):
         mock_query = mocker.MagicMock()
         mock_query.first.return_value = None
-        get_mock_session.exec.return_value = mock_query
+        mock_async_db_session.exec.return_value = mock_query
 
         email = 10
-        result = await UserService().get_user_by_email(email, get_mock_session)
+        result = await UserService().get_user_by_email(email, mock_async_db_session)
 
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_get_user_by_id_database_error(self, get_mock_session):
-        get_mock_session.exec.side_effect = Exception("Database Error")
+    async def test_get_user_by_id_database_error(self, mock_async_db_session):
+        mock_async_db_session.exec.side_effect = Exception("Database Error")
 
         with pytest.raises(Exception, match="Database Error"):
-            _ = await UserService().get_user_by_email(20, get_mock_session)
+            _ = await UserService().get_user_by_email(20, mock_async_db_session)
 
     @pytest.mark.asyncio
-    async def test_create_new_user_success(self, mocker, get_mock_session):
+    async def test_create_new_user_success(self, mocker, mock_async_db_session):
         mocker.patch(
             "src.users.service.UserService.get_user_by_email", return_value=None
         )
@@ -113,7 +95,7 @@ class TestUserService:
             username="new.user", email="new.user@test.de", password="password"
         )
 
-        new_user = await UserService().create_new_user(user_data, get_mock_session)
+        new_user = await UserService().create_new_user(user_data, mock_async_db_session)
 
         assert new_user is not None
         assert new_user.email == user_data.email
@@ -122,15 +104,15 @@ class TestUserService:
         assert new_user.password_hash != user_data.password
         assert hasattr(new_user, "id")
 
-        get_mock_session.commit.assert_called_once()
-        get_mock_session.add.assert_called_once_with(new_user)
+        mock_async_db_session.commit.assert_called_once()
+        mock_async_db_session.add.assert_called_once_with(new_user)
 
     @pytest.mark.asyncio
     async def test_create_new_user_user_already_exist(
-        self, mocker, mocked_user, get_mock_session
+        self, mocker, dummy_user, mock_async_db_session
     ):
         mocker.patch(
-            "src.users.service.UserService.get_user_by_email", return_value=mocked_user
+            "src.users.service.UserService.get_user_by_email", return_value=dummy_user
         )
 
         user_data = UserCreateModel(
@@ -138,10 +120,10 @@ class TestUserService:
         )
 
         with pytest.raises(UserAlreadyExists):
-            _ = await UserService().create_new_user(user_data, get_mock_session)
+            _ = await UserService().create_new_user(user_data, mock_async_db_session)
 
-        get_mock_session.add.assert_not_called()
-        get_mock_session.commit.assert_not_called()
+        mock_async_db_session.add.assert_not_called()
+        mock_async_db_session.commit.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_create_token_success(self, mocker):
@@ -173,10 +155,10 @@ class TestUserService:
 
     @pytest.mark.asyncio
     async def test_authenticate_and_generate_token_success(
-        self, mocker, mocked_user, get_mock_session
+        self, mocker, dummy_user, mock_async_db_session
     ):
         mocker.patch(
-            "src.users.service.UserService.get_user_by_email", return_value=mocked_user
+            "src.users.service.UserService.get_user_by_email", return_value=dummy_user
         )
         mocker.patch("src.users.domains.UserProfile.verify_password", return_value=True)
 
@@ -191,7 +173,7 @@ class TestUserService:
         token = await UserService().authenticate_and_generate_token(
             email="unit.test.dummy@mockdata.com",
             password="Bookhive1234",
-            session=get_mock_session,
+            session=mock_async_db_session,
         )
 
         assert token is not None
@@ -200,12 +182,12 @@ class TestUserService:
         assert isinstance(token["access_token"], str)
         assert isinstance(token["refresh_token"], str)
         mock_create_token.assert_called_once_with(
-            {"id": mocked_user.id, "email": mocked_user.email, "role": mocked_user.role}
+            {"id": dummy_user.id, "email": dummy_user.email, "role": dummy_user.role}
         )
 
     @pytest.mark.asyncio
     async def test_authenticate_and_generate_token_user_not_found(
-        self, mocker, get_mock_session
+        self, mocker, mock_async_db_session
     ):
         mocker.patch(
             "src.users.service.UserService.get_user_by_email", return_value=None
@@ -215,15 +197,15 @@ class TestUserService:
             _ = await UserService().authenticate_and_generate_token(
                 email="unit.test.dummy@mockdata.com",
                 password="Bookhive1234",
-                session=get_mock_session,
+                session=mock_async_db_session,
             )
 
     @pytest.mark.asyncio
     async def test_authenticate_and_generate_token_incorrect_password(
-        self, mocker, mocked_user, get_mock_session
+        self, mocker, dummy_user, mock_async_db_session
     ):
         mocker.patch(
-            "src.users.service.UserService.get_user_by_email", return_value=mocked_user
+            "src.users.service.UserService.get_user_by_email", return_value=dummy_user
         )
 
         mocker.patch(
@@ -234,7 +216,7 @@ class TestUserService:
             _ = await UserService().authenticate_and_generate_token(
                 email="unit.test.dummy@mockdata.com",
                 password="Bookhive1234",
-                session=get_mock_session,
+                session=mock_async_db_session,
             )
 
     @pytest.mark.asyncio

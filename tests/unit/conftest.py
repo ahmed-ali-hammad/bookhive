@@ -1,36 +1,22 @@
 from unittest.mock import AsyncMock
 
-import pytest
-from fastapi.testclient import TestClient
+import pytest_asyncio
+from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.db.main import get_session
-from src.main import app
-from src.users.schemas import UserModel
-from src.users.service import UserService
+from src.users.models import User
 
 
-async def get_mock_session():
-    yield AsyncMock()
+@pytest_asyncio.fixture
+async def mock_async_db_session():
+    yield AsyncMock(spec=AsyncSession)
 
 
-async def fake_user_service():
-    mock_service = AsyncMock(spec=UserService)
-
-    mock_service.create_new_user = AsyncMock(
-        return_value=UserModel(
-            username="test.user",
-            email="test.user@bookhive.de",
-            is_verified=False,
-            role="user",
-            created_at="2025-03-09T11:52:53.184611",
-            updated_at="2025-03-09T11:52:53.184615",
-        )
+@pytest_asyncio.fixture
+async def dummy_user():
+    return User(
+        id=1,
+        username="user.name",
+        email="unit.test.dummy@mockdata.com",
+        password_hash="b1458db3556bf74b02c31f2de5bbb65e32d747e5338156bbf559d2d1e6f71e3f",
+        role="admin",
     )
-    return mock_service
-
-
-@pytest.fixture
-def test_client():
-    app.dependency_overrides[get_session] = get_mock_session
-    app.dependency_overrides[UserService] = fake_user_service
-    return TestClient(app)
