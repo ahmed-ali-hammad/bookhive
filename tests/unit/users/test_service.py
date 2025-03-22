@@ -130,7 +130,7 @@ class TestUserService:
         mock_async_db_session.commit.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_create_token_success(self, mocker, dummy_user_data):
+    async def test_create_auth_tokens_success(self, mocker, dummy_user_data):
         mock_generate_jwt_token = mocker.patch(
             "src.users.domains.UserProfile.generate_jwt_token",
             side_effect=[
@@ -139,7 +139,7 @@ class TestUserService:
             ],
         )
 
-        token = await UserService().create_token(dummy_user_data)
+        token = await UserService().create_auth_tokens(dummy_user_data)
 
         assert token is not None
         assert (
@@ -164,8 +164,8 @@ class TestUserService:
         )
         mocker.patch("src.users.domains.UserProfile.verify_password", return_value=True)
 
-        mock_create_token = mocker.patch(
-            "src.users.service.UserService.create_token",
+        mock_create_auth_tokens = mocker.patch(
+            "src.users.service.UserService.create_auth_tokens",
             return_value={
                 "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxLCJlbWFpbCI6InVuaXQudGVzdC5kdW1teUBtb2NrZGF0YS5jb20iLCJyb2xlIjpudWxsfSwiZXhwIjoxNzQyNTk0OTk0LCJqdGkiOiI2Y2JjNzlmNy04ZDYyLTRhMGEtOGQxYi1jNDkwZTE0NTYyN2UiLCJyZWZyZXNoIjpmYWxzZX0.C265YV2cwHe8sjgOPsPhy96NtvM6hyiflDU4mi-FrdQ",
                 "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxLCJlbWFpbCI6InVuaXQudGVzdC5kdW1teUBtb2NrZGF0YS5jb20iLCJyb2xlIjpudWxsfSwiZXhwIjoxNzQyNjc0MTk0LCJqdGkiOiI5YTNiYmFiYS00MzhhLTQ3YzktYTc4Yy1kNGUxNWI0NGRkOGUiLCJyZWZyZXNoIjp0cnVlfQ.BIv9216LruFkubDFRuh89a_DmO1qa8VqgyP-_b4lFAM",
@@ -183,7 +183,7 @@ class TestUserService:
         assert "refresh_token" in token
         assert isinstance(token["access_token"], str)
         assert isinstance(token["refresh_token"], str)
-        mock_create_token.assert_called_once_with(
+        mock_create_auth_tokens.assert_called_once_with(
             {"id": dummy_user.id, "email": dummy_user.email, "role": dummy_user.role}
         )
 

@@ -79,7 +79,7 @@ class UserService:
 
         return user
 
-    async def create_token(self, user_data: dict) -> dict:
+    async def create_auth_tokens(self, user_data: dict) -> dict:
         """
         Creates an access token and refresh token for a user.
 
@@ -93,12 +93,14 @@ class UserService:
         refresh_token = UserProfile.generate_jwt_token(user_data, 24 * 60 * 60, True)
         return {"access_token": access_token, "refresh_token": refresh_token}
 
-    async def authenticate_and_generate_token(self, email, password, session) -> dict:
+    async def authenticate_and_generate_token(
+        self, email: EmailStr, password: str, session: AsyncSession
+    ) -> dict:
         """
         Authenticate a user and generate a token if credentials are valid.
 
         Parameters:
-        - email (str): The user's email.
+        - email (EmailStr): The user's email.
         - password (str): The user's password.
         - session (AsyncSession): The database session.
 
@@ -118,7 +120,7 @@ class UserService:
             raise InvalidCredentials
 
         user_data = {"id": user.id, "email": email, "role": user.role}
-        token = await self.create_token(user_data)
+        token = await self.create_auth_tokens(user_data)
 
         return token
 
