@@ -53,7 +53,10 @@ class UserProfile:
 
     @staticmethod
     def generate_jwt_token(
-        user_data: dict, expiry: datetime.timedelta = 3600, refresh: bool = False
+        user_data: dict,
+        expiry: datetime.timedelta = 3600,
+        refresh: bool = False,
+        secret_key: str = settings.JWT_SECRET,
     ) -> str:
         """
         Creates a JWT token for authentication.
@@ -76,13 +79,13 @@ class UserProfile:
 
         token = jwt.encode(
             payload=payload,
-            key=settings.JWT_SECRET,
+            key=secret_key,
             algorithm=UserProfile.JWT_ALGORITHM,
         )
         return token
 
     @staticmethod
-    def decode_token(token: str) -> dict | None:
+    def decode_token(token: str, secret_key: str = settings.JWT_SECRET) -> dict | None:
         """
         Decodes and validates a JWT token.
 
@@ -100,7 +103,7 @@ class UserProfile:
         try:
             token_data = jwt.decode(
                 jwt=token,
-                key=settings.JWT_SECRET,
+                key=secret_key,
                 algorithms=[UserProfile.JWT_ALGORITHM],
             )
             return token_data

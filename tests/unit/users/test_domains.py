@@ -1,3 +1,6 @@
+import datetime
+
+import jwt
 import passlib
 import pytest
 
@@ -110,3 +113,92 @@ class TestUserProfile:
         results = UserProfile.verify_password(password, password_hash)
 
         assert results is True
+
+    @pytest.mark.asyncio
+    async def test_generate_jwt_token_success(self, dummy_user_data, dummy_JWT_secret):
+        token = UserProfile.generate_jwt_token(
+            user_data=dummy_user_data, secret_key=dummy_JWT_secret
+        )
+
+        assert token is not None
+        assert isinstance(token, str)
+        assert "." in token  # JWT should have three parts separated by dots
+
+    @pytest.mark.asyncio
+    async def test_generate_jwt_token_payload(self, dummy_user_data, dummy_JWT_secret):
+        token = UserProfile.generate_jwt_token(
+            user_data=dummy_user_data, secret_key=dummy_JWT_secret
+        )
+        decoded = jwt.decode(
+            token, key=dummy_JWT_secret, algorithms=[UserProfile.JWT_ALGORITHM]
+        )
+
+        assert decoded["user"] == dummy_user_data
+        assert "exp" in decoded
+        assert "jti" in decoded
+        assert "refresh" in decoded
+        assert decoded["refresh"] is False
+
+    @pytest.mark.asyncio
+    async def test_generate_jwt_token_expiry(self, dummy_user_data, dummy_JWT_secret):
+        expiry_seconds = 600  # 10 minutes
+
+        token = UserProfile.generate_jwt_token(
+            user_data=dummy_user_data,
+            expiry=expiry_seconds,
+            secret_key=dummy_JWT_secret,
+        )
+
+        decoded = jwt.decode(
+            token, key=dummy_JWT_secret, algorithms=[UserProfile.JWT_ALGORITHM]
+        )
+
+        expected_expiry = datetime.datetime.now(
+            datetime.timezone.utc
+        ) + datetime.timedelta(seconds=expiry_seconds)
+
+        assert (
+            abs(decoded["exp"] - expected_expiry.timestamp()) < 1
+        )  # Allow a small time drift
+
+    @pytest.mark.asyncio
+    async def test_generate_refresh_token(self, dummy_user_data, dummy_JWT_secret):
+        token = UserProfile.generate_jwt_token(
+            user_data=dummy_user_data, refresh=True, secret_key=dummy_JWT_secret
+        )
+        decoded = jwt.decode(
+            token, key=dummy_JWT_secret, algorithms=[UserProfile.JWT_ALGORITHM]
+        )
+
+        assert decoded["user"] == dummy_user_data
+        assert "exp" in decoded
+        assert "jti" in decoded
+        assert "refresh" in decoded
+        assert decoded["refresh"] is True
+
+    @pytest.mark.asyncio
+    async def test_generate_jwt_token_different_users(self, dummy_JWT_secret):
+        user1 = {"id": 7, "email": "unit.test.unicorn@example.com", "role": "admin"}
+        user2 = {"id": 8, "email": "test.user.zombie@example.com", "role": "user"}
+
+        token1 = UserProfile.generate_jwt_token(
+            user_data=user1, secret_key=dummy_JWT_secret
+        )
+        token2 = UserProfile.generate_jwt_token(
+            user_data=user2, secret_key=dummy_JWT_secret
+        )
+
+        assert token1 != token2  # Different users should have different tokens
+
+    @pytest.mark.asyncio
+    async def test_generate_jwt_token_different_instances(
+        self, dummy_user_data, dummy_JWT_secret
+    ):
+        token1 = UserProfile.generate_jwt_token(
+            user_data=dummy_user_data, secret_key=dummy_JWT_secret
+        )
+        token2 = UserProfile.generate_jwt_token(
+            user_data=dummy_user_data, secret_key=dummy_JWT_secret
+        )
+
+        assert token1 != token2  # Different tokens should be generated

@@ -25,3 +25,8 @@ async def dummy_user():
 @pytest_asyncio.fixture
 async def dummy_user_data():
     return {"id": 10, "email": "fake.user.potato@example.com", "role": "admin"}
+
+
+@pytest_asyncio.fixture
+async def dummy_JWT_secret():
+    return "TacoTuesdayJWTSecret"
