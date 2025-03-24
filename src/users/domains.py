@@ -111,7 +111,6 @@ class UserProfile:
             logger.warning(f"Token is Expired: {token}")
         except jwt.PyJWTError as ex:
             logger.error(f"Failed to decode JWT token due to an error. Exception: {ex}")
-            return None
         except Exception:
             logger.exception("Unexpected error while decoding JWT token")
-            return None
+        return None

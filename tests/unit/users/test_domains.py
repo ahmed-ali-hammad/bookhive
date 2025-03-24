@@ -202,3 +202,49 @@ class TestUserProfile:
         )
 
         assert token1 != token2  # Different tokens should be generated
+
+    @pytest.mark.asyncio
+    async def test_decode_token_success(self, dummy_user_data, dummy_JWT_secret):
+        token = UserProfile.generate_jwt_token(
+            user_data=dummy_user_data, secret_key=dummy_JWT_secret
+        )
+
+        token_data = UserProfile.decode_token(token=token, secret_key=dummy_JWT_secret)
+
+        assert token_data is not None
+        assert isinstance(token_data, dict)
+        assert token_data["user"] == dummy_user_data
+
+    @pytest.mark.asyncio
+    async def test_decode_token_expired(self, dummy_user_data, dummy_JWT_secret):
+        expired_token = UserProfile.generate_jwt_token(
+            user_data=dummy_user_data, secret_key=dummy_JWT_secret, expiry=-1
+        )
+
+        token_data = UserProfile.decode_token(
+            token=expired_token, secret_key=dummy_JWT_secret
+        )
+
+        assert token_data is None
+
+    @pytest.mark.asyncio
+    async def test_decode_token_invalid(self, dummy_JWT_secret, caplog):
+        invalid_token = "totally.fake.token"
+
+        token_data = UserProfile.decode_token(
+            token=invalid_token, secret_key=dummy_JWT_secret
+        )
+
+        assert token_data is None
+
+    @pytest.mark.asyncio
+    async def test_decode_token_wrong_secret(self, dummy_user_data, dummy_JWT_secret):
+        token = UserProfile.generate_jwt_token(
+            user_data=dummy_user_data, secret_key=dummy_JWT_secret
+        )
+
+        wrong_secret = "super.wrong.secret"
+
+        token_data = UserProfile.decode_token(token=token, secret_key=wrong_secret)
+
+        assert token_data is None
