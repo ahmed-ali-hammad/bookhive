@@ -6,6 +6,7 @@ import pytest_asyncio
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.books.models import Book
+from src.reviews.schemas import ReviewCreateModel
 from src.users.models import User
 
 
@@ -44,6 +45,13 @@ async def dummy_book():
 @pytest_asyncio.fixture
 async def dummy_user_data():
     return {"id": 10, "email": "fake.user.potato@example.com", "role": "admin"}
+
+
+@pytest_asyncio.fixture
+async def dummy_review_data():
+    return ReviewCreateModel(
+        text="Great book! Would’ve been 5 stars if it had pictures.", rating=4
+    )
 
 
 @pytest_asyncio.fixture
